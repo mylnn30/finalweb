@@ -1,0 +1,11 @@
+<header class="dashboard-topbar">
+    <div class="topbar-brand"><img src="{{ asset('assets/home_01.png') }}" alt="Mletchido Financial Group logo" class="topbar-logo">Mletchido Financial Group</div>
+    <nav class="topbar-nav">
+        <a href="{{ path('app_dashboard') }}" class="{{ active == 'dashboard' ? 'is-active' : '' }}">Dashboard</a>
+        <a href="{{ path('app_applications') }}" class="{{ active == 'applications' ? 'is-active' : '' }}">My Applications</a>
+        <a href="{{ path('app_payments') }}" class="{{ active == 'payments' ? 'is-active' : '' }}">Payments</a>
+        <a href="{{ path('app_notifications') }}" class="{{ active == 'notifications' ? 'is-active' : '' }}">Notifications{% if unreadCount|default(0) > 0 %} ({{ unreadCount }}){% endif %}</a>
+        <a href="{{ path('app_profile') }}" class="{{ active == 'profile' ? 'is-active' : '' }}">Profile</a>
+        <a href="{{ path('app_logout') }}">Sign Out</a>
+    </nav>
+</header>

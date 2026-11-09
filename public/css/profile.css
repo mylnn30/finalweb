@@ -1,0 +1,185 @@
+/* Profile / Edit Profile — shares tokens with dashboard.css */
+
+.profile-page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.profile-header h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+
+.profile-edit-btn,
+.profile-save-btn {
+    padding: 11px 22px;
+    background: var(--blue-500);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.88rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.profile-edit-btn:hover,
+.profile-save-btn:hover {
+    background: var(--blue-400);
+    transform: translateY(-1px);
+}
+
+.profile-cancel-link {
+    font-size: 0.88rem;
+    color: var(--text-lo);
+}
+
+.profile-cancel-link:hover {
+    color: var(--text-hi);
+}
+
+.profile-success {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    background: rgba(62, 207, 142, 0.12);
+    border: 1px solid rgba(62, 207, 142, 0.4);
+    border-radius: 8px;
+}
+
+.profile-success p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #3ecf8e;
+}
+
+/* ---------- View grid ---------- */
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    background: var(--navy-800);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px;
+}
+
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.profile-field-full {
+    grid-column: 1 / -1;
+}
+
+.field-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-lo);
+}
+
+.field-value {
+    font-size: 0.98rem;
+    color: var(--text-hi);
+}
+
+/* ---------- Edit form ---------- */
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-full {
+    grid-column: 1 / -1;
+}
+
+label {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-hi);
+}
+
+.required-mark {
+    color: var(--red-400, #ed5f5f);
+    margin-left: 2px;
+}
+
+input[type="text"],
+input[type="email"],
+textarea {
+    padding: 11px 14px;
+    background: var(--navy-800);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--text-hi);
+    font-size: 0.92rem;
+    font-family: inherit;
+    transition: border-color 0.15s ease;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--blue-500);
+}
+
+.input-error {
+    border-color: var(--red-400, #ed5f5f);
+}
+
+.field-error {
+    margin: 2px 0 0;
+    font-size: 0.82rem;
+    color: var(--red-400, #ed5f5f);
+}
+
+.form-error {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    background: rgba(237, 95, 95, 0.12);
+    border: 1px solid rgba(237, 95, 95, 0.4);
+    border-radius: 8px;
+}
+
+.form-error p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--red-400, #ed5f5f);
+}
+
+@media (max-width: 600px) {
+    .profile-grid,
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,873 @@
+:root {
+    --navy-950: #0a0f1e;
+    --navy-900: #0e1526;
+    --navy-800: #141d33;
+    --navy-700: #1c2740;
+    --line: #263153;
+    --blue-500: #3b6fed;
+    --blue-400: #5f8bf5;
+    --blue-300: #82a4ff;
+    --green-400: #3ecf8e;
+    --red-400: #f2879a;
+    --text-hi: #eef1f8;
+    --text-mid: #c4cbda;
+    --text-lo: #8d97ad;
+    --white: #ffffff;
+    --radius: 12px;
+    --shadow: 0 18px 45px rgba(0, 0, 0, .22);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--navy-950);
+    color: var(--text-hi);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+    outline: none;
+}
+
+/* TOP NAVIGATION */
+
+.dashboard-topbar {
+    width: 100%;
+    min-height: 72px;
+    padding: 0 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    background: var(--navy-900);
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.topbar-brand {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    color: var(--text-hi);
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.topbar-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.topbar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.topbar-nav a {
+    padding: 9px 12px;
+    border-radius: 8px;
+    color: var(--text-lo);
+    font-size: 13px;
+    font-weight: 600;
+    transition: background .2s ease, color .2s ease;
+}
+
+.topbar-nav a:hover {
+    background: var(--navy-800);
+    color: var(--text-hi);
+}
+
+/* PAGE */
+
+.loan-page {
+    width: 100%;
+    padding: 48px 20px 70px;
+}
+
+.loan-container {
+    width: min(1080px, 100%);
+    margin: 0 auto;
+}
+
+.loan-header {
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.loan-header h1 {
+    margin-bottom: 8px;
+    color: var(--text-hi);
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.15;
+    font-weight: 750;
+    letter-spacing: -.7px;
+}
+
+.loan-header p {
+    max-width: 620px;
+    margin: 0 auto;
+    color: var(--text-lo);
+    font-size: 14px;
+}
+
+/* GENERAL FORM */
+
+.loan-form {
+    width: 100%;
+}
+
+.form-section {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 18px;
+    padding: 0 0 42px;
+}
+
+.form-section-last {
+    padding-bottom: 0;
+}
+
+.section-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+}
+
+.section-number {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(95, 139, 245, .45);
+    border-radius: 50%;
+    background: rgba(59, 111, 237, .12);
+    color: var(--blue-300);
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.section-line {
+    width: 1px;
+    flex: 1;
+    min-height: 30px;
+    margin-top: 12px;
+    background: var(--line);
+}
+
+.form-section-last .section-marker {
+    padding-bottom: 0;
+}
+
+.section-body {
+    min-width: 0;
+    padding: 28px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--navy-900);
+    box-shadow: var(--shadow);
+}
+
+.section-title {
+    margin-bottom: 24px;
+    color: var(--text-hi);
+    font-size: 21px;
+    line-height: 1.25;
+    font-weight: 700;
+}
+
+.section-subtitle {
+    margin-top: -16px;
+    margin-bottom: 22px;
+    color: var(--text-lo);
+    font-size: 13px;
+}
+
+.form-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.form-row-tight {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.form-group {
+    min-width: 0;
+}
+
+.form-full {
+    width: 100%;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-mid);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.required-mark {
+    margin-left: 3px;
+    color: var(--red-400);
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="tel"],
+.form-group input[type="email"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--navy-800);
+    color: var(--text-hi);
+    padding: 12px 13px;
+    font-size: 14px;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="tel"],
+.form-group input[type="email"],
+.form-group select {
+    min-height: 46px;
+}
+
+.form-group textarea {
+    min-height: 92px;
+    resize: vertical;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #69748b;
+}
+
+.form-group select {
+    cursor: pointer;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--blue-500);
+    box-shadow: 0 0 0 3px rgba(59, 111, 237, .12);
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+    border-color: #344267;
+}
+
+.input-error {
+    border-color: var(--red-400) !important;
+}
+
+.field-error {
+    margin-top: 6px;
+    color: var(--red-400);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* LOAN TYPE CARDS */
+
+.loan-type-list {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.loan-type-card {
+    min-width: 0;
+    min-height: 92px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 17px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: var(--navy-800);
+    cursor: pointer;
+    transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+
+.loan-type-card:hover {
+    border-color: #3a4b78;
+    background: #18233d;
+    transform: translateY(-1px);
+}
+
+.loan-type-card input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loan-type-card:has(input:checked) {
+    border-color: var(--blue-500);
+    background: rgba(59, 111, 237, .11);
+    box-shadow: 0 0 0 1px rgba(59, 111, 237, .12);
+}
+
+.loan-type-icon {
+    width: 27px;
+    height: 27px;
+    flex: 0 0 27px;
+    color: var(--blue-400);
+}
+
+.loan-type-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.loan-type-name {
+    color: var(--text-hi);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.loan-type-terms {
+    color: var(--text-lo);
+    font-size: 12px;
+}
+
+.loan-type-check {
+    width: 18px;
+    height: 18px;
+    margin-left: auto;
+    flex: 0 0 18px;
+    color: var(--blue-400);
+    opacity: 0;
+    transition: opacity .2s ease;
+}
+
+.loan-type-card:has(input:checked) .loan-type-check {
+    opacity: 1;
+}
+
+/* ACCOUNT INFORMATION */
+
+.account-info-box {
+    width: 100%;
+    margin-bottom: 22px;
+    padding: 17px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--navy-800);
+}
+
+.account-info-field {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 16px;
+    padding: 8px 0;
+}
+
+.field-label {
+    color: var(--text-lo);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.field-value {
+    min-width: 0;
+    color: var(--text-hi);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.account-info-note {
+    margin-top: 9px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    color: var(--text-lo);
+    font-size: 12px;
+}
+
+.account-info-note a {
+    color: var(--blue-400);
+    font-weight: 600;
+}
+
+.account-info-note a:hover {
+    color: var(--blue-300);
+}
+
+/* CONDITIONAL FIELDS */
+
+.conditional-fields {
+    width: 100%;
+    min-width: 0;
+}
+
+/* FILE INPUTS */
+
+.form-group input[type="file"] {
+    width: 100%;
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--navy-800);
+    color: var(--text-lo);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.form-group input[type="file"]::file-selector-button {
+    margin-right: 10px;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: 7px;
+    background: var(--navy-700);
+    color: var(--text-hi);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.form-group input[type="file"]:focus {
+    border-color: var(--blue-500);
+}
+
+/* BUTTON */
+
+.loan-button {
+    width: 100%;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 24px;
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--blue-500);
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.loan-button:hover {
+    background: var(--blue-400);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(59, 111, 237, .2);
+}
+
+.loan-button:active {
+    transform: translateY(0);
+}
+
+/* GENERAL ERROR */
+
+.form-error {
+    width: 100%;
+    margin-bottom: 22px;
+    padding: 13px 15px;
+    border: 1px solid rgba(242, 135, 154, .3);
+    border-radius: 9px;
+    background: rgba(242, 135, 154, .08);
+    color: var(--red-400);
+    font-size: 13px;
+}
+
+/* SUCCESS */
+
+.loan-success {
+    width: min(620px, 100%);
+    margin: 60px auto;
+    padding: 42px 30px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--navy-900);
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.success-icon {
+    width: 62px;
+    height: 62px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: rgba(62, 207, 142, .12);
+    border: 1px solid rgba(62, 207, 142, .3);
+    color: var(--green-400);
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.loan-success h1 {
+    margin-bottom: 9px;
+    color: var(--text-hi);
+    font-size: 28px;
+}
+
+.loan-success p {
+    margin-bottom: 4px;
+    color: var(--text-lo);
+    font-size: 14px;
+}
+
+.loan-success .loan-button {
+    width: auto;
+    min-width: 210px;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+    .dashboard-topbar {
+        padding: 0 4%;
+    }
+
+    .loan-page {
+        padding: 38px 18px 60px;
+    }
+
+    .form-row-tight {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .form-row-tight .form-group:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+    .dashboard-topbar {
+        min-height: auto;
+        padding: 13px 18px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .topbar-brand {
+        width: 100%;
+        font-size: 14px;
+    }
+
+    .topbar-nav {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 4px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+    }
+
+    .topbar-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .topbar-nav a {
+        flex: 0 0 auto;
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .loan-page {
+        padding: 28px 12px 45px;
+    }
+
+    .loan-header {
+        margin-bottom: 24px;
+    }
+
+    .loan-header h1 {
+        font-size: 29px;
+    }
+
+    .loan-header p {
+        font-size: 13px;
+    }
+
+    .form-section {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding-bottom: 28px;
+    }
+
+    .section-marker {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+
+    .section-line {
+        display: none;
+    }
+
+    .section-body {
+        padding: 20px 16px;
+        border-radius: 10px;
+    }
+
+    .section-title {
+        margin-bottom: 19px;
+        font-size: 19px;
+    }
+
+    .loan-type-list {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .loan-type-card {
+        min-height: 76px;
+        padding: 13px;
+    }
+
+    .form-row,
+    .form-row-tight {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .form-row-tight .form-group:last-child {
+        grid-column: auto;
+    }
+
+    .account-info-field {
+        grid-template-columns: 1fr;
+        gap: 3px;
+        padding: 7px 0;
+    }
+
+    .account-info-box {
+        padding: 14px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="tel"],
+    .form-group input[type="email"],
+    .form-group select {
+        min-height: 45px;
+    }
+
+    .loan-button {
+        margin-top: 20px;
+    }
+
+    .loan-success {
+        margin: 25px auto;
+        padding: 32px 20px;
+    }
+}
+
+/* SMALL MOBILE */
+
+@media (max-width: 480px) {
+    .dashboard-topbar {
+        padding: 12px;
+    }
+
+    .topbar-brand {
+        font-size: 13px;
+    }
+
+    .topbar-logo {
+        width: 32px;
+        height: 32px;
+    }
+
+    .topbar-nav a {
+        padding: 7px 9px;
+        font-size: 11px;
+    }
+
+    .loan-page {
+        padding: 22px 9px 35px;
+    }
+
+    .loan-header h1 {
+        font-size: 25px;
+    }
+
+    .loan-header p {
+        font-size: 12px;
+    }
+
+    .section-number {
+        width: 34px;
+        height: 34px;
+        font-size: 13px;
+    }
+
+    .section-body {
+        padding: 17px 13px;
+    }
+
+    .section-title {
+        font-size: 18px;
+    }
+
+    .loan-type-card {
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .loan-type-icon {
+        width: 24px;
+        height: 24px;
+        flex-basis: 24px;
+    }
+
+    .loan-type-name {
+        font-size: 13px;
+    }
+
+    .loan-type-terms {
+        font-size: 11px;
+    }
+
+    .form-group label {
+        font-size: 12px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="tel"],
+    .form-group input[type="email"],
+    .form-group select,
+    .form-group textarea {
+        font-size: 13px;
+    }
+
+    .form-group input[type="file"] {
+        font-size: 11px;
+    }
+
+    .form-group input[type="file"]::file-selector-button {
+        font-size: 11px;
+    }
+
+    .loan-success h1 {
+        font-size: 24px;
+    }
+
+    .loan-success p {
+        font-size: 13px;
+    }
+
+    .loan-success .loan-button {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+/* EXTRA SMALL PHONES */
+
+@media (max-width: 360px) {
+    .topbar-brand {
+        white-space: normal;
+    }
+
+    .topbar-nav a {
+        padding: 7px 8px;
+    }
+
+    .loan-page {
+        padding-left: 7px;
+        padding-right: 7px;
+    }
+
+    .section-body {
+        padding: 15px 11px;
+    }
+
+    .loan-type-card {
+        min-height: 70px;
+    }
+
+    .loan-type-check {
+        display: none;
+    }
+
+    .account-info-box {
+        padding: 12px;
+    }
+}
+
+/* ACCESSIBILITY */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--blue-400);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+    }
+}

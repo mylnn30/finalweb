@@ -1,0 +1,360 @@
+.eligibility-layout {
+    display: grid;
+    grid-template-columns: .78fr 1.22fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+
+
+#eligibility-status {
+    scroll-margin-top: 6.5rem;
+}
+
+#eligibility-status:focus {
+    outline: none;
+}
+
+.eligibility-alert-banner {
+    padding: 1.1rem 0;
+    background: rgba(242,97,122,.08);
+    border-bottom: 1px solid rgba(242,97,122,.3);
+    animation: eligibility-status-in .35s ease;
+}
+
+.eligibility-alert-banner .eligibility-alert {
+    margin: 0;
+    color: #f2617a;
+    font-size: .82rem;
+}
+
+.eligibility-notification {
+    padding: 1.7rem 0;
+    border-bottom: 1px solid var(--line);
+    animation: eligibility-status-in .35s ease;
+}
+
+.eligibility-notification-pass {
+    background: linear-gradient(180deg, rgba(67,214,160,.09), transparent);
+}
+
+.eligibility-notification-fail {
+    background: linear-gradient(180deg, rgba(242,97,122,.09), transparent);
+}
+
+.eligibility-notification-inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1.6rem;
+    align-items: center;
+}
+
+.eligibility-notification-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.eligibility-notification-pass .eligibility-notification-icon {
+    background: rgba(67,214,160,.16);
+    color: #43d6a0;
+}
+
+.eligibility-notification-fail .eligibility-notification-icon {
+    background: rgba(242,97,122,.16);
+    color: #f2617a;
+}
+
+.eligibility-notification-label {
+    display: block;
+    font-family: "Playfair Display", serif;
+    font-weight: 600;
+    font-size: 1.08rem;
+    margin-bottom: .35rem;
+}
+
+.eligibility-notification-pass .eligibility-notification-label { color: #43d6a0; }
+.eligibility-notification-fail .eligibility-notification-label { color: #f2617a; }
+
+.eligibility-notification-message {
+    color: var(--muted);
+    font-size: .8rem;
+    line-height: 1.6;
+    margin: 0 0 .9rem;
+    max-width: 60ch;
+}
+
+.eligibility-checklist-compact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem 1.5rem;
+    margin: 0;
+}
+
+.eligibility-checklist-compact .eligibility-check-item {
+    font-size: .74rem;
+}
+
+.eligibility-notification-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .8rem;
+    text-align: right;
+}
+
+.eligibility-notification-side .eligibility-payment-estimate {
+    text-align: right;
+}
+
+.eligibility-notification-side .btn {
+    white-space: nowrap;
+}
+
+@keyframes eligibility-status-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Left column: why / benefits ---------- */
+
+.eligibility-intro {
+    position: sticky;
+    top: 6.5rem;
+}
+
+.eligibility-intro > p:not(.eyebrow) {
+    color: var(--muted);
+    font-size: .85rem;
+    margin: .8rem 0 1.8rem;
+}
+
+.eligibility-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.eligibility-benefits li {
+    display: flex;
+    align-items: flex-start;
+    gap: .9rem;
+}
+
+.eligibility-benefit-icon {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #2c65b8;
+    border-radius: 5px;
+    color: #55c8ff;
+}
+
+.eligibility-benefit-icon svg {
+    width: 17px;
+    height: 17px;
+}
+
+.eligibility-benefit-text {
+    display: block;
+}
+
+.eligibility-benefits strong {
+    display: block;
+    font-size: .82rem;
+    margin-bottom: .15rem;
+}
+
+.eligibility-benefits span.eligibility-benefit-desc {
+    display: block;
+    color: var(--muted);
+    font-size: .72rem;
+    line-height: 1.5;
+}
+
+.eligibility-note {
+    background: #0c1830;
+    border: 1px solid rgba(74,111,174,.4);
+    border-radius: 5px;
+    padding: 1rem 1.2rem;
+    color: var(--muted);
+    font-size: .72rem;
+    line-height: 1.65;
+}
+
+/* ---------- Form card ---------- */
+/* The card itself reuses .loan-form as-is (same class, no override
+   needed here) -- only the parts .loan-form doesn't already style
+   (text/number/select inputs) get new rules below. */
+
+.eligibility-field {
+    margin-bottom: 1.4rem;
+}
+
+.eligibility-field label,
+.eligibility-field legend {
+    display: block;
+    margin-bottom: .5rem;
+}
+
+.eligibility-field input[type="number"],
+.eligibility-field select {
+    width: 100%;
+    background: #0c1830;
+    border: 1px solid rgba(74,111,174,.4);
+    border-radius: 4px;
+    padding: .65rem .8rem;
+    color: var(--text);
+    font-family: "DM Sans", sans-serif;
+    font-size: .85rem;
+    transition: border-color .15s ease;
+}
+
+.eligibility-field input[type="number"]:focus,
+.eligibility-field select:focus {
+    outline: none;
+    border-color: var(--blue-bright);
+}
+
+.eligibility-field select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23aab5c8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 13px;
+    padding-right: 34px;
+}
+
+/* ---------- Result: checklist ---------- */
+/* Reuses .loan-form's own internal rhythm -- sits directly inside the
+   card, separated the same way .payment-result already is. */
+
+.eligibility-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+
+.eligibility-check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    font-size: .78rem;
+    color: #dce4ef;
+}
+
+.eligibility-check-icon {
+    flex-shrink: 0;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    margin-top: .05rem;
+}
+
+.eligibility-check-icon svg {
+    width: 11px;
+    height: 11px;
+}
+
+.eligibility-check-item.is-pass .eligibility-check-icon {
+    background: rgba(67, 214, 160, .16);
+    color: #43d6a0;
+}
+
+.eligibility-check-item.is-fail .eligibility-check-icon {
+    background: rgba(242, 97, 122, .16);
+    color: #f2617a;
+}
+
+.eligibility-check-item.is-fail {
+    color: #8c96ab;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 991px) {
+    .eligibility-layout {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+
+    .eligibility-intro {
+        position: static;
+    }
+
+    .eligibility-notification-inner {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "icon body"
+            "side side";
+    }
+
+    .eligibility-notification-icon { grid-area: icon; }
+    .eligibility-notification-body { grid-area: body; }
+    .eligibility-notification-side {
+        grid-area: side;
+        align-items: flex-start;
+        text-align: left;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: .4rem;
+    }
+    .eligibility-notification-side .eligibility-payment-estimate {
+        text-align: left;
+    }
+}
+
+/* ---------- Extra mobile tightening (matches site's 767px breakpoint) ---------- */
+
+@media (max-width: 767px) {
+    .eligibility-benefit-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .eligibility-benefit-icon svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .eligibility-notification-inner {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "icon"
+            "body"
+            "side";
+    }
+
+    .eligibility-notification-side {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .7rem;
+    }
+
+    .eligibility-checklist-compact {
+        flex-direction: column;
+        gap: .5rem;
+    }
+
+    .eligibility-note {
+        font-size: .7rem;
+    }
+}

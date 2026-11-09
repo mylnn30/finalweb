@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+{% block title %}Apply for a Loan | Mletchido Financial Group{% endblock %}
+{% block stylesheets %}<link rel="stylesheet" href="{{ asset('css/loan-application.css') }}">{% endblock %}
+{% block body %}
+{% set loanTerms = {home: [60,120,180,240,300,360], business: [12,24,36,48,60,72,84], personal: [12,18,24,36,48,60], asset_backed: [24,36,48,60,72,84,96,108,120]} %}
+{% set icons = {home: '<path d="M4 12L16 3l12 9"/><path d="M7 10v14h18V10"/><path d="M13 24v-7h6v7"/>', business: '<rect x="6" y="11" width="20" height="14" rx="1.5"/><path d="M12 11V8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3"/><path d="M6 17h20"/>', personal: '<circle cx="16" cy="10" r="4.5"/><path d="M7 25c1.5-5 5-7.5 9-7.5S23.5 20 25 25"/>', asset_backed: '<path d="M16 4l10 4v7c0 6.5-4.2 11-10 13-5.8-2-10-6.5-10-13V8z"/><path d="M12 16l3 3 5-6"/>'} %}
+{% include 'partials/borrower_nav.html.twig' with {active: 'applications'} %}
+<main class="loan-page"><section class="loan-container">
+	<header class="loan-header"><h1>Apply for a Loan</h1><p>Complete the three steps below to submit your application for review.</p></header>
+	{{ form_start(form, {attr: {class: 'loan-form', novalidate: 'novalidate', enctype: 'multipart/form-data'}}) }}
+	{% if form_errors(form) %}<div class="form-error">{{ form_errors(form) }}</div>{% endif %}
+	<section class="form-section"><div class="section-marker"><span class="section-number">1</span><span class="section-line"></span></div><div class="section-body">
+		<h2 class="section-title">Loan Details</h2>
+		<div class="loan-type-list">{% for choice in form.loan_type %}{% set type = choice.vars.value %}<label class="loan-type-card">{{ form_widget(choice, {attr: {'data-terms': loanTerms[type]|join(',')}}) }}<svg class="loan-type-icon" width="24" height="24" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">{{ icons[type]|raw }}</svg><span class="loan-type-text"><span class="loan-type-name">{{ choice.vars.label }}</span><span class="loan-type-terms">{{ loanTerms[type]|first }}–{{ loanTerms[type]|last }} months</span></span><svg class="loan-type-check" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-9"/></svg></label>{% endfor %}</div>{{ form_errors(form.loan_type) }}
+		<div class="form-row form-row-tight"><div class="form-group">{{ form_label(form.amount, 'Loan Amount (₱)') }}{{ form_widget(form.amount, {attr: {min: 5000, max: 50000000, step: '0.01', placeholder: 'e.g. 250000'}}) }}{{ form_errors(form.amount) }}</div><div class="form-group"><label for="{{ form.term.vars.id }}">Repayment Term<span class="required-mark">*</span></label>{{ form_widget(form.term, {attr: {id: 'term'}}) }}{{ form_errors(form.term) }}</div><div class="form-group">{{ form_label(form.payment_frequency, 'Preferred Payment Frequency') }}{{ form_widget(form.payment_frequency) }}{{ form_errors(form.payment_frequency) }}</div></div>
+		<div class="form-group">{{ form_label(form.purpose, 'What is this loan for?') }}{{ form_widget(form.purpose, {attr: {rows: 3, placeholder: "Tell us briefly what you'll use the funds for"}}) }}{{ form_errors(form.purpose) }}</div>
+	</div></section>
+	<section class="form-section"><div class="section-marker"><span class="section-number">2</span><span class="section-line"></span></div><div class="section-body"><h2 class="section-title">Applicant Information</h2>
+		<div class="account-info-box"><div class="account-info-field"><span class="field-label">Full name</span><span class="field-value">{{ app.user.firstName }} {{ app.user.middleName }} {{ app.user.lastName }}</span></div><div class="account-info-field"><span class="field-label">Address</span><span class="field-value">{{ app.user.address }}</span></div><p class="account-info-note">From your account — <a href="{{ path('app_profile_edit') }}">edit your profile</a> if this has changed.</p></div>
+		<div class="form-row"><div class="form-group">{{ form_label(form.id_type, 'Type of ID') }}{{ form_widget(form.id_type) }}{{ form_errors(form.id_type) }}</div><div class="form-group">{{ form_label(form.employment_status, 'Employment Status') }}{{ form_widget(form.employment_status, {attr: {id: 'employment_status'}}) }}{{ form_errors(form.employment_status) }}</div></div>
+		<div class="form-row"><div class="form-group form-full">{{ form_label(form.occupation, 'Occupation / Job Title') }}{{ form_widget(form.occupation, {attr: {placeholder: 'e.g. Nurse, Sari-sari store owner'}}) }}{{ form_errors(form.occupation) }}</div></div>
+		<div id="employed-fields" class="conditional-fields" style="display:none"><div class="form-row"><div class="form-group">{{ form_label(form.employer_name, 'Employer / Company Name') }}{{ form_widget(form.employer_name, {attr: {placeholder: 'e.g. ABC Manufacturing Corp.'}}) }}{{ form_errors(form.employer_name) }}</div><div class="form-group">{{ form_label(form.employer_contact_number, 'Employer Contact Number') }}{{ form_widget(form.employer_contact_number, {attr: {type: 'tel', inputmode: 'numeric', pattern: '[0-9]{11}', minlength: 11, maxlength: 11, placeholder: 'e.g. 09171234567'}}) }}{{ form_errors(form.employer_contact_number) }}</div></div><div class="form-group">{{ form_label(form.length_of_employment, 'Length of Employment') }}{{ form_widget(form.length_of_employment) }}{{ form_errors(form.length_of_employment) }}</div></div>
+		<div id="self-employed-fields" class="conditional-fields" style="display:none"><div class="form-row"><div class="form-group">{{ form_label(form.business_name, 'Business Name') }}{{ form_widget(form.business_name, {attr: {placeholder: "e.g. Aling Nena's Sari-Sari Store"}}) }}{{ form_errors(form.business_name) }}</div><div class="form-group">{{ form_label(form.business_type, 'Business Type') }}{{ form_widget(form.business_type) }}{{ form_errors(form.business_type) }}</div></div></div>
+		<div class="form-row"><div class="form-group form-full">{{ form_label(form.monthly_income, 'Monthly Income (₱)') }}{{ form_widget(form.monthly_income, {attr: {min: 0, max: 10000000, step: '0.01', placeholder: 'e.g. 25000'}}) }}{{ form_errors(form.monthly_income) }}</div></div>
+	</div></section>
+	<section class="form-section form-section-last"><div class="section-marker"><span class="section-number">3</span></div><div class="section-body"><h2 class="section-title">Supporting Documents</h2><p class="section-subtitle">JPG or PNG, up to 5MB each.</p><div class="form-row"><div class="form-group">{{ form_label(form.valid_id, 'Valid ID') }}{{ form_widget(form.valid_id, {attr: {accept: 'image/jpeg,image/png'}}) }}{{ form_errors(form.valid_id) }}</div><div class="form-group">{{ form_label(form.proof_of_income, 'Proof of Income') }}{{ form_widget(form.proof_of_income, {attr: {accept: 'image/jpeg,image/png'}}) }}{{ form_errors(form.proof_of_income) }}</div></div><div class="form-row"><div class="form-group">{{ form_label(form.proof_of_address, 'Proof of Address') }}{{ form_widget(form.proof_of_address, {attr: {accept: 'image/jpeg,image/png'}}) }}{{ form_errors(form.proof_of_address) }}</div><div class="form-group conditional-fields" id="employment-certificate-field" style="display:none">{{ form_label(form.employment_certificate, 'Employment Certificate') }}{{ form_widget(form.employment_certificate, {attr: {accept: 'image/jpeg,image/png'}}) }}{{ form_errors(form.employment_certificate) }}</div></div>{{ form_widget(form.submit, {attr: {class: 'loan-button'}}) }}</div></section>
+	{{ form_end(form) }}
+</section></main>
+{% endblock %}
+{% block javascripts %}<script>
+document.addEventListener('DOMContentLoaded', () => {
+	const loanRadios = document.querySelectorAll('input[name$="[loan_type]"]');
+	const termSelect = document.getElementById('{{ form.term.vars.id }}');
+	const postedTerm = '{{ form.term.vars.value|default(0) }}';
+	function populateTerms(radio) {
+		const terms = (radio?.dataset.terms || '').split(',').filter(Boolean);
+		termSelect.innerHTML = '';
+		terms.forEach((months) => { const option = document.createElement('option'); option.value = months; option.textContent = months + ' Months'; option.selected = months === postedTerm; termSelect.append(option); });
+	}
+	loanRadios.forEach((radio) => { radio.addEventListener('change', () => populateTerms(radio)); if (radio.checked) populateTerms(radio); });
+	const status = document.getElementById('{{ form.employment_status.vars.id }}');
+	const employed = document.getElementById('employed-fields');
+	const selfEmployed = document.getElementById('self-employed-fields');
+	const certificate = document.getElementById('employment-certificate-field');
+	function setRequired(group, required) { group?.querySelectorAll('input,select').forEach((field) => { field.required = required; }); }
+	function syncEmploymentFields() {
+		const isEmployed = status.value === 'employed'; const isSelf = status.value === 'self_employed';
+		employed.style.display = isEmployed ? '' : 'none'; setRequired(employed, isEmployed);
+		selfEmployed.style.display = isSelf ? '' : 'none'; setRequired(selfEmployed, isSelf);
+		certificate.style.display = isEmployed ? '' : 'none'; setRequired(certificate, isEmployed);
+	}
+	status?.addEventListener('change', syncEmploymentFields); syncEmploymentFields();
+});
+</script>{% endblock %}

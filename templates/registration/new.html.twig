@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+{% block title %}Create Account | Mletchido Financial Group{% endblock %}
+{% block stylesheets %}<link rel="stylesheet" href="{{ asset('css/register.css') }}">{% endblock %}
+{% block body %}
+<main class="register-page"><section class="register-container">
+    {% if registered|default(false) %}
+        <div class="register-success"><div class="success-icon">✓</div><h1>Registration Successful</h1><p>Your Mletchido Financial Group account has been created successfully.</p><p>Your account is now ready. You may sign in to continue.</p><a href="{{ path('app_login') }}" class="register-button">Sign In</a></div>
+    {% else %}
+        <header class="register-header"><h1>Create Your Account</h1><p>Join Mletchido Financial Group</p></header>
+        {{ form_start(form, {attr: {class: 'register-form', novalidate: 'novalidate'}}) }}
+        {{ form_errors(form) }}
+        <fieldset><legend>Personal Information</legend>
+            <div class="form-row">
+                {{ form_row(form.first_name, {row_attr: {class: 'form-group'}}) }}
+                {{ form_row(form.middle_name, {row_attr: {class: 'form-group'}}) }}
+                {{ form_row(form.last_name, {row_attr: {class: 'form-group'}}) }}
+            </div>
+            <div class="form-row">
+                {{ form_row(form.email, {row_attr: {class: 'form-group'}}) }}
+                {{ form_row(form.phone_number, {row_attr: {class: 'form-group'}}) }}
+            </div>
+            {{ form_row(form.address, {row_attr: {class: 'form-group form-full'}}) }}
+        </fieldset>
+        <fieldset><legend>Account Information</legend>
+            {{ form_row(form.username, {row_attr: {class: 'form-group'}}) }}
+            <div class="form-row">
+                <div class="form-group">{{ form_label(form.password.first, 'Password') }}{{ form_widget(form.password.first, {attr: {autocomplete: 'new-password'}}) }}<small class="password-note">At least 8 characters with uppercase, lowercase, number, and special character.</small>{{ form_errors(form.password.first) }}</div>
+                <div class="form-group">{{ form_label(form.password.second, 'Confirm Password') }}{{ form_widget(form.password.second, {attr: {autocomplete: 'new-password'}}) }}{{ form_errors(form.password.second) }}</div>
+            </div>
+        </fieldset>
+        {{ form_widget(form.submit, {attr: {class: 'register-button'}}) }}
+        {{ form_end(form) }}
+        <p class="login-link">Already have an account? <a href="{{ path('app_login') }}">Sign In</a></p>
+    {% endif %}
+</section></main>
+{% endblock %}

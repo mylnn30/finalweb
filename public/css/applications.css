@@ -1,0 +1,214 @@
+.applications-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 18px;
+    font-size: 0.88rem;
+    color: var(--text-lo);
+}
+
+.back-link:hover {
+    color: var(--text-hi);
+}
+
+.applications-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 16px;
+}
+
+.applications-header h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+
+.applications-apply-btn {
+    padding: 11px 22px;
+    background: var(--blue-500);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.88rem;
+    border-radius: 8px;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.applications-apply-btn:hover {
+    background: var(--blue-400);
+    transform: translateY(-1px);
+}
+
+/* ---------- Empty state ---------- */
+
+.applications-empty {
+    text-align: center;
+    padding: 60px 24px;
+    background: var(--navy-800);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.applications-empty p {
+    margin: 0 0 20px;
+    color: var(--text-lo);
+}
+
+/* ---------- Table ---------- */
+
+.applications-table {
+    background: var(--navy-800);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.applications-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 0.7fr 1fr 1fr 0.6fr;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.9rem;
+}
+
+.applications-row:last-child {
+    border-bottom: none;
+}
+
+.applications-row-head {
+    background: var(--navy-700);
+    color: var(--text-lo);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.applications-view-link {
+    color: var(--blue-400);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.applications-view-link:hover {
+    color: var(--blue-500);
+}
+
+/* ---------- Status badges (shared look with dashboard.css) ---------- */
+
+.status-badge {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-pending {
+    background: rgba(224, 166, 62, 0.15);
+    color: #e0a63e;
+}
+
+.status-approved {
+    background: rgba(62, 207, 142, 0.15);
+    color: #3ecf8e;
+}
+
+.status-rejected {
+    background: rgba(237, 59, 59, 0.15);
+    color: #ed5f5f;
+}
+
+/* ---------- Detail view ---------- */
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    background: var(--navy-800);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px;
+}
+
+.detail-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-field-full {
+    grid-column: 1 / -1;
+}
+
+.field-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-lo);
+}
+
+.field-value {
+    font-size: 0.98rem;
+    color: var(--text-hi);
+}
+
+.document-thumb {
+    max-width: 220px;
+    max-height: 150px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    object-fit: cover;
+    cursor: zoom-in;
+}
+
+/* ---------- Missing document placeholder ----------
+   Shown by render_document_field() whenever a document path is
+   empty or the file no longer exists on disk, instead of letting
+   the browser show a broken image icon. Lives at the top level
+   (NOT inside a media query) so it applies on every screen size. */
+
+.document-missing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 220px;
+    height: 100px;
+    border-radius: 8px;
+    border: 1px dashed var(--line);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-lo);
+    font-size: 0.82rem;
+    font-style: italic;
+    text-align: center;
+    padding: 8px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 760px) {
+    .applications-row-head {
+        display: none;
+    }
+
+    .applications-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 16px 20px;
+    }
+
+    .applications-row span[data-label]::before {
+        content: attr(data-label) ": ";
+        color: var(--text-lo);
+        font-weight: 500;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
