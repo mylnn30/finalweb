@@ -1,4 +1,35 @@
 {% extends 'base.html.twig' %}
 {% block title %}User {{ managedUser.username }} | Admin{% endblock %}
 {% block stylesheets %}<link rel="stylesheet" href="{{ asset('css/admin.css') }}">{% endblock %}
-{% block body %}{% include 'partials/admin_nav.html.twig' with {active: 'borrowers'} %}<main class="admin-page"><a href="{{ path('admin_users') }}" class="back-link">← Back to Users</a><header class="admin-header"><div><h1>{{ managedUser.firstName }} {{ managedUser.lastName }}</h1><p>Account details and activity.</p></div><a href="{{ path('admin_user_edit', {id:managedUser.id}) }}" class="admin-btn admin-btn-view">Edit</a></header><div class="detail-grid"><div class="detail-field"><span class="field-label">Username</span><span class="field-value">{{ managedUser.username }}</span></div><div class="detail-field"><span class="field-label">Email</span><span class="field-value">{{ managedUser.email }}</span></div><div class="detail-field"><span class="field-label">Phone</span><span class="field-value">{{ managedUser.phoneNumber }}</span></div><div class="detail-field"><span class="field-label">Role</span><span class="field-value">{{ managedUser.isAdmin ? 'Admin' : 'Borrower' }}</span></div><div class="detail-field"><span class="field-label">Status</span><span class="field-value">{{ managedUser.isActive ? 'Active' : 'Deactivated' }}</span></div></div>{% if managedUser.id != app.user.id and managedUser.loanApplications is empty and managedUser.notifications is empty %}<form method="post" action="{{ path('admin_user_delete', {id:managedUser.id}) }}" onsubmit="return confirm('Delete this account?')"><input type="hidden" name="_token" value="{{ csrf_token('user_delete_' ~ managedUser.id) }}"><button class="admin-btn admin-btn-reject" type="submit">Delete user</button></form>{% else %}<p class="cell-muted">Account deletion is unavailable for the current user or accounts with history.</p>{% endif %}</main>{% endblock %}
+{% block body %}
+    {% include 'partials/admin_nav.html.twig' with {active: 'borrowers'} %}
+    <main class="admin-page">
+        <a href="{{ path('admin_users') }}" class="back-link">← Back to Users</a>
+        <header class="admin-header">
+            <div>
+                <h1>{{ managedUser.firstName }} {{ managedUser.lastName }}</h1>
+                <p>Account details and activity.</p>
+            </div>
+        </header>
+        {% for message in app.flashes('success') %}<p role="status">{{ message }}</p>{% endfor %}
+        {% for message in app.flashes('info') %}<p role="status">{{ message }}</p>{% endfor %}
+        <div class="detail-grid">
+            <div class="detail-field"><span class="field-label">Username</span><span class="field-value">{{ managedUser.username }}</span></div>
+            <div class="detail-field"><span class="field-label">Email</span><span class="field-value">{{ managedUser.email }}</span></div>
+            <div class="detail-field"><span class="field-label">Phone</span><span class="field-value">{{ managedUser.phoneNumber }}</span></div>
+            <div class="detail-field"><span class="field-label">Role</span><span class="field-value">{{ managedUser.isAdmin ? 'Admin' : (managedUser.isStaff ? 'Staff' : 'Borrower') }}</span></div>
+            <div class="detail-field"><span class="field-label">Created</span><span class="field-value">{{ managedUser.createdAt|date('M j, Y g:i A') }}</span></div>
+            <div class="detail-field"><span class="field-label">Status</span><span class="field-value">{{ managedUser.isActive ? 'Active' : 'Disabled' }}</span></div>
+        </div>
+        <p class="cell-muted">Personal profile information is read-only for administrators. The account holder must update it from their own profile.</p>
+        <p><a class="admin-btn admin-btn-view" href="{{ path('admin_user_reset_password', {id:managedUser.id}) }}">Reset password</a></p>
+        {% if managedUser.id != app.user.id and managedUser.loanApplications is empty and managedUser.notifications is empty %}
+            <form method="post" action="{{ path('admin_user_delete', {id:managedUser.id}) }}" onsubmit="return confirm('Delete this account? This cannot be undone.')">
+                <input type="hidden" name="_token" value="{{ csrf_token('user_delete_' ~ managedUser.id) }}">
+                <button class="admin-btn admin-btn-reject" type="submit">Delete user</button>
+            </form>
+        {% else %}
+            <p class="cell-muted">Account deletion is unavailable for the current user or accounts with borrower history.</p>
+        {% endif %}
+    </main>
+{% endblock %}

@@ -6,7 +6,7 @@ use App\Repository\SystemSettingRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SystemSettingRepository::class)]
-#[ORM\Table(name: 'system_settings')]
+#[ORM\Table(name: 'system_settings', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_general_ci', 'engine' => 'InnoDB'])]
 class SystemSetting
 {
     #[ORM\Id]

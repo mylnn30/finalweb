@@ -1,4 +1,36 @@
 {% extends 'base.html.twig' %}
 {% block title %}Edit Profile | Mletchido Financial Group{% endblock %}
 {% block stylesheets %}<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}"><link rel="stylesheet" href="{{ asset('css/profile.css') }}">{% endblock %}
-{% block body %}{% include 'partials/borrower_nav.html.twig' with {active: 'profile'} %}<main class="profile-page"><section class="profile-container"><header class="profile-header"><h1>Edit Profile</h1><a href="{{ path('app_profile') }}" class="profile-cancel-link">Cancel</a></header>{{ form_start(form, {attr: {class: 'profile-form', novalidate: 'novalidate'}}) }}{{ form_errors(form) }}<div class="form-row"><div class="form-group">{{ form_label(form.firstName, 'First Name') }}{{ form_widget(form.firstName) }}{{ form_errors(form.firstName) }}</div><div class="form-group">{{ form_label(form.middleName, 'Middle Name') }}{{ form_widget(form.middleName) }}{{ form_errors(form.middleName) }}</div></div><div class="form-row"><div class="form-group">{{ form_label(form.lastName, 'Last Name') }}{{ form_widget(form.lastName) }}{{ form_errors(form.lastName) }}</div><div class="form-group">{{ form_label(form.email, 'Email') }}{{ form_widget(form.email) }}{{ form_errors(form.email) }}</div></div><div class="form-row"><div class="form-group">{{ form_label(form.phoneNumber, 'Phone Number') }}{{ form_widget(form.phoneNumber) }}{{ form_errors(form.phoneNumber) }}</div><div class="form-group form-full">{{ form_label(form.address, 'Address') }}{{ form_widget(form.address, {attr: {rows: 3}}) }}{{ form_errors(form.address) }}</div></div>{{ form_widget(form.save, {attr: {class: 'profile-save-btn'}}) }}{{ form_end(form) }}</section></main>{% endblock %}
+{% block body %}
+    {% if is_granted('ROLE_ADMIN') %}
+        {% include 'partials/admin_nav.html.twig' with {active: 'account'} %}
+    {% elseif is_granted('ROLE_STAFF') %}
+        {% include 'partials/staff_nav.html.twig' with {active: 'account'} %}
+    {% else %}
+        {% include 'partials/borrower_nav.html.twig' with {active: 'profile'} %}
+    {% endif %}
+    <main class="profile-page">
+        <section class="profile-container">
+            <header class="profile-header">
+                <h1>Edit My Profile</h1>
+                <a href="{{ path('app_profile') }}" class="profile-cancel-link">Cancel</a>
+            </header>
+            {{ form_start(form, {attr: {class: 'profile-form', novalidate: 'novalidate'}}) }}
+            {{ form_errors(form) }}
+            <div class="form-row">
+                <div class="form-group">{{ form_label(form.firstName, 'First Name') }}{{ form_widget(form.firstName) }}{{ form_errors(form.firstName) }}</div>
+                <div class="form-group">{{ form_label(form.middleName, 'Middle Name') }}{{ form_widget(form.middleName) }}{{ form_errors(form.middleName) }}</div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">{{ form_label(form.lastName, 'Last Name') }}{{ form_widget(form.lastName) }}{{ form_errors(form.lastName) }}</div>
+                <div class="form-group">{{ form_label(form.email, 'Email') }}{{ form_widget(form.email) }}{{ form_errors(form.email) }}</div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">{{ form_label(form.phoneNumber, 'Phone Number') }}{{ form_widget(form.phoneNumber) }}{{ form_errors(form.phoneNumber) }}</div>
+                <div class="form-group form-full">{{ form_label(form.address, 'Address') }}{{ form_widget(form.address, {attr: {rows: 3}}) }}{{ form_errors(form.address) }}</div>
+            </div>
+            {{ form_widget(form.save, {attr: {class: 'profile-save-btn'}}) }}
+            {{ form_end(form) }}
+        </section>
+    </main>
+{% endblock %}

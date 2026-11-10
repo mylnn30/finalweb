@@ -7,7 +7,7 @@ use App\Repository\RememberTokenRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -19,24 +19,29 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[Route('/admin/users')]
+#[IsGranted('ROLE_ADMIN')]
 class AdminUserController extends AbstractController
 {
     #[Route('', name: 'admin_users', methods: ['GET'])]
     public function index(Request $request, UserRepository $users): Response
     {
+        $role = $request->query->get('role');
+
         return $this->render('admin/users/index.html.twig', [
-            'users' => $users->searchUsers((string) $request->query->get('q', '')),
+            'users' => $users->searchUsers((string) $request->query->get('q', ''), is_string($role) ? $role : null),
             'query' => (string) $request->query->get('q', ''),
+            'role' => is_string($role) ? $role : null,
         ]);
     }
 
     #[Route('/new', name: 'admin_user_new', methods: ['GET', 'POST'])]
     public function new(Request $request, UserRepository $users, EntityManagerInterface $entityManager, UserPasswordHasherInterface $hasher): Response
     {
-        return $this->editForm($request, new User(), true, $users, $entityManager, $hasher);
+        return $this->buildNewUserForm($request, new User(), $users, $entityManager, $hasher);
     }
 
     #[Route('/{id}', name: 'admin_user_show', requirements: ['id' => '\\d+'], methods: ['GET'])]
@@ -51,14 +56,15 @@ class AdminUserController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'admin_user_edit', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
-    public function edit(int $id, Request $request, UserRepository $users, EntityManagerInterface $entityManager, UserPasswordHasherInterface $hasher): Response
+    public function edit(int $id, UserRepository $users): Response
     {
-        $user = $users->find($id);
-        if (!$user) {
+        if (!$users->find($id)) {
             throw $this->createNotFoundException();
         }
 
-        return $this->editForm($request, $user, false, $users, $entityManager, $hasher);
+        $this->addFlash('info', 'Personal information can only be updated by the account holder.');
+
+        return $this->redirectToRoute('admin_user_show', ['id' => $id]);
     }
 
     #[Route('/{id}/access', name: 'admin_user_access', requirements: ['id' => '\\d+'], methods: ['POST'])]
@@ -73,10 +79,10 @@ class AdminUserController extends AbstractController
         }
         $action = (string) $request->request->get('action');
         $currentUser = $this->getUser();
-        if ($currentUser instanceof User && $currentUser->getId() === $user->getId() && in_array($action, ['remove_admin', 'deactivate'], true)) {
-            $this->addFlash('error', 'You cannot remove your own administrator access or deactivate your own account.');
-        } elseif ($action === 'make_admin' || $action === 'remove_admin') {
-            $user->setIsAdmin($action === 'make_admin');
+        if ($currentUser instanceof User && $currentUser->getId() === $user->getId() && in_array($action, ['admin', 'staff', 'borrower', 'deactivate'], true)) {
+            $this->addFlash('error', 'You cannot change your own role or deactivate your own account.');
+        } elseif (in_array($action, ['admin', 'staff', 'borrower'], true)) {
+            $user->setRole($action);
             $entityManager->flush();
         } elseif ($action === 'activate' || $action === 'deactivate') {
             $user->setIsActive($action === 'activate');
@@ -86,6 +92,43 @@ class AdminUserController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_users');
+    }
+
+    #[Route('/{id}/reset-password', name: 'admin_user_reset_password', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
+    public function resetPassword(int $id, Request $request, UserRepository $users, EntityManagerInterface $entityManager, UserPasswordHasherInterface $hasher): Response
+    {
+        $user = $users->find($id);
+        if (!$user) {
+            throw $this->createNotFoundException();
+        }
+        $currentUser = $this->getUser();
+        if ($currentUser instanceof User && $currentUser->getId() === $user->getId()) {
+            $this->addFlash('error', 'Use Change Password to securely update your own password.');
+
+            return $this->redirectToRoute('app_account_password');
+        }
+
+        $form = $this->createFormBuilder()
+            ->add('password', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'first_options' => ['label' => 'New password'],
+                'second_options' => ['label' => 'Confirm password'],
+                'invalid_message' => 'Passwords do not match.',
+                'constraints' => [new Assert\NotBlank(), new Assert\Length(min: 8), new Assert\Regex('/[A-Z]/'), new Assert\Regex('/[a-z]/'), new Assert\Regex('/[0-9]/'), new Assert\Regex('/[\W_]/')],
+            ])
+            ->add('reset', SubmitType::class, ['label' => 'Reset password'])
+            ->getForm();
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user->setPassword($hasher->hashPassword($user, (string) $form->get('password')->getData()));
+            $entityManager->flush();
+            $this->addFlash('success', 'Password reset successfully.');
+
+            return $this->redirectToRoute('admin_user_show', ['id' => $id]);
+        }
+
+        return $this->render('admin/users/reset_password.html.twig', ['managedUser' => $user, 'form' => $form]);
     }
 
     #[Route('/{id}/delete', name: 'admin_user_delete', requirements: ['id' => '\\d+'], methods: ['POST'])]
@@ -116,65 +159,62 @@ class AdminUserController extends AbstractController
         return $this->redirectToRoute('admin_users');
     }
 
-    private function editForm(Request $request, User $user, bool $isNew, UserRepository $users, EntityManagerInterface $entityManager, UserPasswordHasherInterface $hasher): Response
+    private function buildNewUserForm(Request $request, User $user, UserRepository $users, EntityManagerInterface $entityManager, UserPasswordHasherInterface $hasher): Response
     {
         $data = [
-            'username' => $isNew ? '' : $user->getUsername(),
-            'first_name' => $isNew ? '' : $user->getFirstName(),
-            'middle_name' => $isNew ? '' : $user->getMiddleName(),
-            'last_name' => $isNew ? '' : $user->getLastName(),
-            'email' => $isNew ? '' : $user->getEmail(),
-            'phone_number' => $isNew ? '' : $user->getPhoneNumber(),
-            'address' => $isNew ? '' : $user->getAddress(),
-            'is_admin' => $user->isAdmin(),
+            'username' => '',
+            'first_name' => '',
+            'middle_name' => '',
+            'last_name' => '',
+            'email' => '',
+            'phone_number' => '',
+            'address' => '',
+            'role' => 'borrower',
         ];
         $builder = $this->createFormBuilder($data)
-            ->add('username', TextType::class, ['disabled' => !$isNew, 'constraints' => [new Assert\NotBlank(), new Assert\Length(min: 4, max: 50), new Assert\Regex('/^[a-zA-Z0-9_]+$/')]])
+            ->add('username', TextType::class, ['constraints' => [new Assert\NotBlank(), new Assert\Length(min: 4, max: 50), new Assert\Regex('/^[a-zA-Z0-9_]+$/')]])
             ->add('first_name', TextType::class, ['constraints' => [new Assert\NotBlank(), new Assert\Length(max: 50), new Assert\Regex("/^[a-zA-Z\\s'-]+$/")]])
             ->add('middle_name', TextType::class, ['required' => false, 'constraints' => [new Assert\Length(max: 50)]])
             ->add('last_name', TextType::class, ['constraints' => [new Assert\NotBlank(), new Assert\Length(max: 50), new Assert\Regex("/^[a-zA-Z\\s'-]+$/")]])
             ->add('email', EmailType::class, ['constraints' => [new Assert\NotBlank(), new Assert\Length(max: 150), new Assert\Email()]])
             ->add('phone_number', TextType::class, ['constraints' => [new Assert\NotBlank(), new Assert\Length(max: 20), new Assert\Regex('/^\+?[0-9\s\-()]+$/')]])
             ->add('address', TextareaType::class, ['constraints' => [new Assert\NotBlank(), new Assert\Length(max: 255)]])
-            ->add('is_admin', CheckboxType::class, ['required' => false]);
-        if ($isNew) {
-            $builder->add('password', RepeatedType::class, [
+            ->add('role', ChoiceType::class, ['choices' => ['Borrower' => 'borrower', 'Staff' => 'staff', 'Admin' => 'admin']])
+            ->add('password', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'first_options' => ['label' => 'Password'],
                 'second_options' => ['label' => 'Confirm password'],
                 'invalid_message' => 'Passwords do not match.',
                 'constraints' => [new Assert\NotBlank(), new Assert\Length(min: 8), new Assert\Regex('/[A-Z]/'), new Assert\Regex('/[a-z]/'), new Assert\Regex('/[0-9]/'), new Assert\Regex('/[\W_]/')],
             ]);
-        }
-        $form = $builder->add('save', SubmitType::class, ['label' => $isNew ? 'Create account' : 'Save changes'])->getForm();
+        $form = $builder->add('save', SubmitType::class, ['label' => 'Create account'])->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $existingEmail = $users->findOneBy(['email' => $data['email']]);
-            $existingUsername = $isNew ? $users->findOneBy(['username' => $data['username']]) : null;
-            if (($existingEmail && $existingEmail->getId() !== $user->getId()) || $existingUsername) {
+            $existingUsername = $users->findOneBy(['username' => $data['username']]);
+            if ($existingEmail || $existingUsername) {
                 $form->addError(new FormError('Username or email is already in use.'));
             } else {
-                $user->setUsername($isNew ? trim($data['username']) : $user->getUsername())
+                $user->setUsername(trim($data['username']))
                     ->setFirstName(trim($data['first_name']))
                     ->setMiddleName(trim($data['middle_name'] ?? '') ?: null)
                     ->setLastName(trim($data['last_name']))
                     ->setEmail(trim($data['email']))
                     ->setPhoneNumber(trim($data['phone_number']))
                     ->setAddress(trim($data['address']))
-                    ->setIsAdmin((bool) $data['is_admin']);
-                if ($isNew) {
-                    $user->setPassword($hasher->hashPassword($user, $data['password']))->setIsActive(true);
-                    $entityManager->persist($user);
-                }
+                    ->setRole((string) $data['role'])
+                    ->setPassword($hasher->hashPassword($user, $data['password']))
+                    ->setIsActive(true);
+                $entityManager->persist($user);
                 $entityManager->flush();
-                $this->addFlash('success', $isNew ? 'Account created.' : 'User updated.');
+                $this->addFlash('success', 'Account created.');
 
                 return $this->redirectToRoute('admin_users');
             }
         }
 
-        return $this->render('admin/users/form.html.twig', ['form' => $form, 'isNew' => $isNew]);
+        return $this->render('admin/users/form.html.twig', ['form' => $form]);
     }
 }

@@ -1,6 +1,6 @@
 <header class="dashboard-topbar">
     <div class="topbar-brand"><img src="{{ asset('assets/home_01.png') }}" alt="Mletchido Financial Group logo" class="topbar-logo">Mletchido Financial Group <span class="admin-badge">Admin</span></div>
-    <nav class="topbar-nav"><a href="{{ path('admin_dashboard') }}">Admin</a><a href="{{ path('app_logout') }}">Sign Out</a></nav>
+    <nav class="topbar-nav"><a href="{{ path('admin_dashboard') }}">Admin</a><a href="{{ path('app_account') }}">My Account</a><a href="{{ path('app_account_password') }}">Change Password</a><form action="{{ path('app_logout') }}" method="post" class="logout-form"><input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}"><button type="submit" class="logout-button">Sign Out</button></form></nav>
 </header>
 <nav class="admin-subnav">
     <a href="{{ path('admin_dashboard') }}" class="{{ active == 'overview' ? 'is-active' : '' }}">Overview</a>

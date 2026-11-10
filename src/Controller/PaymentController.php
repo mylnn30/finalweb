@@ -42,7 +42,7 @@ class PaymentController extends AbstractBorrowerController
         }
         $form = $this->createFormBuilder([])
             ->add('loan_id', ChoiceType::class, ['choices' => $choices, 'placeholder' => 'Select an approved loan', 'constraints' => [new Assert\NotBlank()]])
-            ->add('payment_date', DateType::class, ['widget' => 'single_text', 'data' => new \DateTimeImmutable('today')])
+            ->add('payment_date', DateType::class, ['widget' => 'single_text', 'input' => 'datetime_immutable', 'data' => new \DateTimeImmutable('today')])
             ->add('amount_paid', NumberType::class, ['scale' => 2, 'constraints' => [new Assert\Positive()]])
             ->add('payment_method', ChoiceType::class, ['choices' => ['Cash' => 'cash', 'GCash' => 'gcash', 'Bank transfer' => 'bank_transfer']])
             ->add('reference_number', TextType::class, ['required' => false, 'constraints' => [new Assert\Length(max: 100)]])

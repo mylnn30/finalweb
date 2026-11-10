@@ -6,7 +6,7 @@ use App\Repository\NotificationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
-#[ORM\Table(name: 'notifications')]
+#[ORM\Table(name: 'notifications', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_general_ci', 'engine' => 'InnoDB'])]
 #[ORM\Index(name: 'idx_notifications_user_read', columns: ['user_id', 'is_read', 'created_at'])]
 class Notification
 {
@@ -16,7 +16,7 @@ class Notification
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'notifications')]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT', foreignKeyName: 'notifications_ibfk_1')]
     private User $user;
 
     #[ORM\Column(name: 'message', type: 'string', length: 255)]
@@ -28,7 +28,7 @@ class Notification
     #[ORM\Column(name: 'is_read', type: 'boolean', options: ['default' => 0])]
     private bool $isRead = false;
 
-    #[ORM\Column(name: 'created_at', type: 'datetime_immutable', columnDefinition: 'timestamp NOT NULL DEFAULT current_timestamp()')]
+    #[ORM\Column(name: 'created_at', type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'], columnDefinition: 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP')]
     private \DateTimeImmutable $createdAt;
 
     public function __construct()

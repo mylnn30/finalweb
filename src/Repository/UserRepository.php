@@ -15,15 +15,28 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /** @return list<User> */
-    public function searchUsers(string $term = ''): array
+    public function searchUsers(string $term = '', ?string $role = null): array
     {
         $queryBuilder = $this->createQueryBuilder('u')
             ->orderBy('u.id', 'DESC');
 
         if (trim($term) !== '') {
             $queryBuilder
-                ->andWhere('u.username LIKE :term OR u.firstName LIKE :term OR u.lastName LIKE :term OR u.email LIKE :term')
+                ->andWhere($queryBuilder->expr()->orX(
+                    'u.username LIKE :term',
+                    'u.firstName LIKE :term',
+                    'u.lastName LIKE :term',
+                    'u.email LIKE :term',
+                ))
                 ->setParameter('term', '%' . trim($term) . '%');
+        }
+
+        if ($role === 'admin') {
+            $queryBuilder->andWhere('u.isAdmin = true');
+        } elseif ($role === 'staff') {
+            $queryBuilder->andWhere('u.isStaff = true');
+        } elseif ($role === 'borrower') {
+            $queryBuilder->andWhere('u.isAdmin = false AND u.isStaff = false');
         }
 
         return $queryBuilder->getQuery()->getResult();

@@ -1,4 +1,27 @@
 {% extends 'base.html.twig' %}
 {% block title %}My Profile | Mletchido Financial Group{% endblock %}
 {% block stylesheets %}<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}"><link rel="stylesheet" href="{{ asset('css/profile.css') }}">{% endblock %}
-{% block body %}{% include 'partials/borrower_nav.html.twig' with {active: 'profile'} %}<main class="profile-page"><section class="profile-container"><header class="profile-header"><h1>My Profile</h1><a href="{{ path('app_profile_edit') }}" class="profile-edit-btn">Edit Profile</a></header><div class="profile-grid"><div class="profile-field"><span class="field-label">Username</span><span class="field-value">{{ user.username }}</span></div><div class="profile-field"><span class="field-label">Full Name</span><span class="field-value">{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</span></div><div class="profile-field"><span class="field-label">Email</span><span class="field-value">{{ user.email }}</span></div><div class="profile-field"><span class="field-label">Phone Number</span><span class="field-value">{{ user.phoneNumber }}</span></div><div class="profile-field profile-field-full"><span class="field-label">Address</span><span class="field-value">{{ user.address }}</span></div></div></section></main>{% endblock %}
+{% block body %}
+    {% if is_granted('ROLE_ADMIN') %}
+        {% include 'partials/admin_nav.html.twig' with {active: 'account'} %}
+    {% elseif is_granted('ROLE_STAFF') %}
+        {% include 'partials/staff_nav.html.twig' with {active: 'account'} %}
+    {% else %}
+        {% include 'partials/borrower_nav.html.twig' with {active: 'profile'} %}
+    {% endif %}
+    <main class="profile-page">
+        <section class="profile-container">
+            <header class="profile-header">
+                <h1>My Profile</h1>
+                <a href="{{ path('app_profile_edit') }}" class="profile-edit-btn">Edit Profile</a>
+            </header>
+            <div class="profile-grid">
+                <div class="profile-field"><span class="field-label">Username</span><span class="field-value">{{ user.username }}</span></div>
+                <div class="profile-field"><span class="field-label">Full Name</span><span class="field-value">{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</span></div>
+                <div class="profile-field"><span class="field-label">Email</span><span class="field-value">{{ user.email }}</span></div>
+                <div class="profile-field"><span class="field-label">Phone Number</span><span class="field-value">{{ user.phoneNumber }}</span></div>
+                <div class="profile-field profile-field-full"><span class="field-label">Address</span><span class="field-value">{{ user.address }}</span></div>
+            </div>
+        </section>
+    </main>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+{% block title %}Edit Application #{{ application.id }} | Admin{% endblock %}
+{% block stylesheets %}<link rel="stylesheet" href="{{ asset('css/admin.css') }}"><link rel="stylesheet" href="{{ asset('css/loan-application.css') }}">{% endblock %}
+{% block body %}
+{% include 'partials/admin_nav.html.twig' with {active: 'applications'} %}
+<main class="admin-page">
+    <a class="back-link" href="{{ path('admin_application_show', {id: application.id}) }}">← Back to application</a>
+    <header class="admin-header"><div><h1>Edit Application #{{ application.id }}</h1><p>Administrators can edit any application and set its assigned staff member.</p></div></header>
+    {{ form_start(form, {attr: {class: 'admin-form', enctype: 'multipart/form-data'}}) }}
+        {{ form_errors(form) }}
+        <div class="form-row">{{ form_row(form.user) }}{{ form_row(form.assignedStaff) }}</div>
+        <div class="form-row">{{ form_row(form.loanType) }}{{ form_row(form.idType) }}</div>
+        <div class="form-row">{{ form_row(form.employmentStatus) }}{{ form_row(form.occupation) }}</div>
+        <div class="form-row">{{ form_row(form.employerName) }}{{ form_row(form.lengthOfEmployment) }}</div>
+        <div class="form-row">{{ form_row(form.employerContactNumber) }}{{ form_row(form.businessName) }}</div>
+        <div class="form-row">{{ form_row(form.businessType) }}{{ form_row(form.monthlyIncome) }}</div>
+        <div class="form-row">{{ form_row(form.paymentFrequency) }}{{ form_row(form.amount) }}</div>
+        <div class="form-row">{{ form_row(form.termMonths) }}{{ form_row(form.purpose) }}</div>
+        <div class="form-row">{{ form_row(form.validIdPath) }}{{ form_row(form.proofOfIncomePath) }}</div>
+        <div class="form-row">{{ form_row(form.proofOfAddressPath) }}{{ form_row(form.employmentCertificatePath) }}</div>
+        <button type="submit" class="admin-btn admin-btn-approve">Save Application</button>
+    {{ form_end(form) }}
+</main>
+{% endblock %}

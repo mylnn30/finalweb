@@ -5,11 +5,13 @@ namespace App\Entity;
 use App\Repository\LoanApplicationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LoanApplicationRepository::class)]
-#[ORM\Table(name: 'loan_applications')]
+#[ORM\Table(name: 'loan_applications', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_general_ci', 'engine' => 'InnoDB'])]
 #[ORM\Index(name: 'idx_user_id', columns: ['user_id'])]
+#[ORM\Index(name: 'idx_assigned_staff_id', columns: ['assigned_staff_id'])]
 class LoanApplication
 {
     #[ORM\Id]
@@ -18,20 +20,24 @@ class LoanApplication
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'loanApplications')]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE', foreignKeyName: 'fk_loan_applications_user')]
     private User $user;
 
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'assignedApplications')]
+    #[ORM\JoinColumn(name: 'assigned_staff_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL', foreignKeyName: 'fk_loan_applications_assigned_staff')]
+    private ?User $assignedStaff = null;
+
     #[ORM\Column(name: 'loan_type', type: 'string', length: 30)]
-    private string $loanType;
+    private string $loanType = 'personal';
 
     #[ORM\Column(name: 'id_type', type: 'string', length: 50)]
-    private string $idType;
+    private string $idType = 'philippine_passport';
 
     #[ORM\Column(name: 'employment_status', type: 'string', length: 20)]
-    private string $employmentStatus;
+    private string $employmentStatus = 'employed';
 
     #[ORM\Column(name: 'occupation', type: 'string', length: 100)]
-    private string $occupation;
+    private string $occupation = '';
 
     #[ORM\Column(name: 'employer_name', type: 'string', length: 150, nullable: true)]
     private ?string $employerName = null;
@@ -49,7 +55,7 @@ class LoanApplication
     private ?string $businessType = null;
 
     #[ORM\Column(name: 'monthly_income', type: 'decimal', precision: 12, scale: 2)]
-    private string $monthlyIncome;
+    private string $monthlyIncome = '0.00';
 
     #[ORM\Column(name: 'payment_frequency', type: 'string', length: 20, options: ['default' => 'monthly'])]
     private string $paymentFrequency = 'monthly';
@@ -61,27 +67,27 @@ class LoanApplication
     private ?\DateTimeImmutable $nextDueDate = null;
 
     #[ORM\Column(name: 'amount', type: 'decimal', precision: 12, scale: 2)]
-    private string $amount;
+    private string $amount = '5000.00';
 
     #[ORM\Column(name: 'term_months', type: 'smallint', options: ['unsigned' => true])]
-    private int $termMonths;
+    private int $termMonths = 12;
 
     #[ORM\Column(name: 'purpose', type: 'string', length: 500)]
-    private string $purpose;
+    private string $purpose = '';
 
     #[ORM\Column(name: 'valid_id_path', type: 'string', length: 255)]
-    private string $validIdPath;
+    private string $validIdPath = '';
 
     #[ORM\Column(name: 'proof_of_income_path', type: 'string', length: 255)]
-    private string $proofOfIncomePath;
+    private string $proofOfIncomePath = '';
 
     #[ORM\Column(name: 'proof_of_address_path', type: 'string', length: 255)]
-    private string $proofOfAddressPath;
+    private string $proofOfAddressPath = '';
 
     #[ORM\Column(name: 'employment_certificate_path', type: 'string', length: 255, nullable: true)]
     private ?string $employmentCertificatePath = null;
 
-    #[ORM\Column(name: 'status', type: 'string', length: 9, options: ['default' => 'pending'], columnDefinition: "enum('pending','approved','rejected') NOT NULL DEFAULT 'pending'")]
+    #[ORM\Column(name: 'status', type: Types::ENUM, options: ['values' => ['pending', 'approved', 'rejected'], 'default' => 'pending'])]
     private string $status = 'pending';
 
     #[ORM\Column(name: 'submitted_at', type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
@@ -110,6 +116,24 @@ class LoanApplication
     public function setUser(User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getAssignedStaff(): ?User
+    {
+        return $this->assignedStaff;
+    }
+
+    public function setAssignedStaff(?User $assignedStaff): self
+    {
+        if ($this->assignedStaff === $assignedStaff) {
+            return $this;
+        }
+
+        $this->assignedStaff?->removeAssignedApplication($this);
+        $this->assignedStaff = $assignedStaff;
+        $assignedStaff?->addAssignedApplication($this);
 
         return $this;
     }

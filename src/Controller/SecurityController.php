@@ -13,7 +13,11 @@ class SecurityController extends AbstractController
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser() !== null) {
-            return $this->redirectToRoute($this->isGranted('ROLE_ADMIN') ? 'admin_dashboard' : 'app_dashboard');
+            $route = $this->isGranted('ROLE_ADMIN')
+                ? 'admin_dashboard'
+                : ($this->isGranted('ROLE_STAFF') ? 'staff_dashboard' : 'app_dashboard');
+
+            return $this->redirectToRoute($route);
         }
 
         return $this->render('security/login.html.twig', [
@@ -22,7 +26,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    #[Route('/logout', name: 'app_logout', methods: ['GET', 'POST'])]
+    #[Route('/logout', name: 'app_logout', methods: ['POST'])]
     public function logout(): never
     {
         throw new \LogicException('The firewall intercepts the logout route.');

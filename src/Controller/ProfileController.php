@@ -21,20 +21,12 @@ class ProfileController extends AbstractBorrowerController
     #[Route('', name: 'app_profile', methods: ['GET'])]
     public function show(): Response
     {
-        if ($this->isGranted('ROLE_ADMIN')) {
-            return $this->redirectToRoute('admin_dashboard');
-        }
-
         return $this->render('profile/show.html.twig', ['user' => $this->getUser()]);
     }
 
     #[Route('/edit', name: 'app_profile_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, EntityManagerInterface $entityManager, UserRepository $users): Response
     {
-        if ($this->isGranted('ROLE_ADMIN')) {
-            return $this->redirectToRoute('admin_dashboard');
-        }
-
         /** @var User $user */
         $user = $this->getUser();
         $form = $this->createFormBuilder($user)

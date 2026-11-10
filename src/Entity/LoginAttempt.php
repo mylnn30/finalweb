@@ -6,7 +6,7 @@ use App\Repository\LoginAttemptRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LoginAttemptRepository::class)]
-#[ORM\Table(name: 'login_attempts')]
+#[ORM\Table(name: 'login_attempts', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_general_ci', 'engine' => 'InnoDB'])]
 #[ORM\Index(name: 'idx_username_time', columns: ['username', 'attempted_at'])]
 class LoginAttempt
 {

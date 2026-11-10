@@ -14,8 +14,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/reports')]
+#[IsGranted('ROLE_ADMIN')]
 class AdminReportController extends AbstractController
 {
     #[Route('', name: 'admin_reports', methods: ['GET'])]
@@ -64,7 +66,7 @@ class AdminReportController extends AbstractController
         if ($type === 'borrowers') {
             fputcsv($stream, ['User ID', 'Username', 'Name', 'Email', 'Phone', 'Role', 'Status']);
             foreach ($rows as $user) {
-                fputcsv($stream, [$user->getId(), $user->getUsername(), $user->getFirstName() . ' ' . $user->getLastName(), $user->getEmail(), $user->getPhoneNumber(), $user->isAdmin() ? 'Admin' : 'Borrower', $user->isActive() ? 'Active' : 'Deactivated']);
+                fputcsv($stream, [$user->getId(), $user->getUsername(), $user->getFirstName() . ' ' . $user->getLastName(), $user->getEmail(), $user->getPhoneNumber(), $user->isAdmin() ? 'Admin' : ($user->isStaff() ? 'Staff' : 'Borrower'), $user->isActive() ? 'Active' : 'Deactivated']);
             }
         } elseif ($type === 'payments') {
             fputcsv($stream, ['Payment ID', 'Loan ID', 'Borrower', 'Date', 'Amount', 'Method', 'Reference', 'Status']);

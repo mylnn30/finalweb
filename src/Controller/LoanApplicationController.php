@@ -3,13 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\LoanApplication;
+use App\Entity\Notification;
 use App\Entity\User;
 use App\Repository\LoanApplicationRepository;
 use App\Service\DocumentStorageService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -41,7 +42,7 @@ class LoanApplicationController extends AbstractBorrowerController
     }
 
     #[Route('/new', name: 'app_loan_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, DocumentStorageService $storage): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, DocumentStorageService $storage, LoggerInterface $logger): Response
     {
         if ($this->isGranted('ROLE_ADMIN')) {
             return $this->redirectToRoute('admin_dashboard');
@@ -61,7 +62,14 @@ class LoanApplicationController extends AbstractBorrowerController
             ->add('monthly_income', NumberType::class, ['scale' => 2, 'constraints' => [new Assert\Positive(), new Assert\LessThanOrEqual(10000000)]])
             ->add('payment_frequency', ChoiceType::class, ['choices' => ['Monthly' => 'monthly', 'Bi-weekly' => 'biweekly', 'Weekly' => 'weekly']])
             ->add('amount', NumberType::class, ['scale' => 2, 'constraints' => [new Assert\Range(min: 5000, max: 50000000)]])
-            ->add('term', IntegerType::class, ['constraints' => [new Assert\Positive()]])
+            ->add('term', ChoiceType::class, [
+                'choices' => array_combine(
+                    array_map(static fn (int $months): string => $months . ' Months', array_unique(array_merge(...array_values(self::LOAN_TERMS)))),
+                    array_unique(array_merge(...array_values(self::LOAN_TERMS))),
+                ),
+                'placeholder' => 'Select a term',
+                'constraints' => [new Assert\NotBlank()],
+            ])
             ->add('purpose', TextareaType::class, ['constraints' => [new Assert\NotBlank(), new Assert\Length(max: 500)]])
             ->add('valid_id', FileType::class, ['mapped' => false, 'constraints' => [new Assert\NotNull(), new Assert\File(maxSize: '5M', mimeTypes: ['image/jpeg', 'image/png'])]])
             ->add('proof_of_income', FileType::class, ['mapped' => false, 'constraints' => [new Assert\NotNull(), new Assert\File(maxSize: '5M', mimeTypes: ['image/jpeg', 'image/png'])]])
@@ -83,8 +91,13 @@ class LoanApplicationController extends AbstractBorrowerController
                 $form->addError(new FormError('Self-employed applicants must provide their business name and type.'));
             } else {
                 try {
+                    $user = $this->getUser();
+                    if (!$user instanceof User) {
+                        throw new \LogicException('A borrower must be authenticated to submit an application.');
+                    }
+
                     $application
-                        ->setUser($this->getUser())
+                        ->setUser($user)
                         ->setLoanType($data['loan_type'])
                         ->setIdType($data['id_type'])
                         ->setEmploymentStatus($status)
@@ -106,15 +119,27 @@ class LoanApplicationController extends AbstractBorrowerController
                         $application->setEmploymentCertificatePath($storage->store($form->get('employment_certificate')->getData()));
                     }
                     $entityManager->persist($application);
+                    $entityManager->persist((new Notification())
+                        ->setUser($user)
+                        ->setType('application_update')
+                        ->setMessage('Your loan application has been submitted and is pending review.'));
                     $entityManager->flush();
 
-                    $this->addFlash('success', 'Your application has been submitted for review.');
+                    $this->addFlash('success', sprintf('Application #%d submitted successfully. You can track it in My Applications.', $application->getId()));
 
                     return $this->redirectToRoute('app_applications');
                 } catch (\Throwable $exception) {
-                    $form->addError(new FormError('The documents could not be saved. Please try again.'));
+                    $logger->error('Loan application submission failed.', [
+                        'exception' => $exception,
+                        'user_id' => $this->getUser() instanceof User ? $this->getUser()->getId() : null,
+                    ]);
+                    $form->addError(new FormError('We could not confirm your application was submitted. Please try again, or contact support if this keeps happening.'));
                 }
             }
+        }
+
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('error', 'Your application was not submitted. Please correct the highlighted fields and submit again.');
         }
 
         return $this->render('applications/new.html.twig', ['form' => $form]);

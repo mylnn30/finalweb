@@ -18,26 +18,30 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[Route('/admin/payments')]
+#[IsGranted('ROLE_ADMIN')]
 class AdminPaymentController extends AbstractController
 {
     #[Route('', name: 'admin_payments', methods: ['GET', 'POST'])]
     public function index(Request $request, EntityManagerInterface $entityManager, LoanApplicationRepository $applications, PaymentRepository $payments, LoanFinanceService $finance): Response
     {
+        $preselectedLoanId = filter_var($request->query->get('loan_id'), FILTER_VALIDATE_INT);
+        $preselectedLoanId = $preselectedLoanId !== false && $preselectedLoanId > 0 ? $preselectedLoanId : null;
         $loans = $applications->findForAdmin('approved');
         $choices = [];
         foreach ($loans as $loan) {
             $choices[sprintf('#%d %s · %s', $loan->getId(), $loan->getUser()->getUsername(), $loan->getLoanType())] = (string) $loan->getId();
         }
-        $form = $this->createFormBuilder([])
+        $form = $this->createFormBuilder(['loan_id' => $preselectedLoanId ? (string) $preselectedLoanId : ''])
             ->add('loan_id', ChoiceType::class, ['choices' => $choices, 'placeholder' => 'Select loan', 'constraints' => [new Assert\NotBlank()]])
-            ->add('payment_date', DateType::class, ['widget' => 'single_text', 'data' => new \DateTimeImmutable('today')])
+            ->add('payment_date', DateType::class, ['widget' => 'single_text', 'input' => 'datetime_immutable', 'data' => new \DateTimeImmutable('today')])
             ->add('amount_paid', NumberType::class, ['scale' => 2, 'constraints' => [new Assert\Positive()]])
             ->add('payment_method', ChoiceType::class, ['choices' => ['Cash' => 'cash', 'GCash' => 'gcash', 'Bank transfer' => 'bank_transfer']])
             ->add('reference_number', TextType::class, ['required' => false, 'constraints' => [new Assert\Length(max: 100)]])
-            ->add('status', ChoiceType::class, ['choices' => ['Confirmed' => 'confirmed', 'Pending' => 'pending']])
+            ->add('status', ChoiceType::class, ['choices' => ['Confirmed' => 'confirmed', 'Pending' => 'pending', 'Failed' => 'failed']])
             ->add('record', SubmitType::class, ['label' => 'Record payment'])
             ->getForm();
         $form->handleRequest($request);
@@ -45,7 +49,10 @@ class AdminPaymentController extends AbstractController
             $data = $form->getData();
             $loan = $applications->find((int) $data['loan_id']);
             $amount = (float) $data['amount_paid'];
-            if (!$loan || $loan->getStatus() !== 'approved') {
+            $referenceNumber = trim($data['reference_number'] ?? '');
+            if ($referenceNumber !== '' && $payments->findOneBy(['referenceNumber' => $referenceNumber])) {
+                $form->get('reference_number')->addError(new FormError('This reference number has already been used. Enter a unique reference number.'));
+            } elseif (!$loan || $loan->getStatus() !== 'approved') {
                 $form->get('loan_id')->addError(new FormError('Choose an active approved loan.'));
             } elseif ($amount > $finance->remainingBalance($loan)) {
                 $form->get('amount_paid')->addError(new FormError('Payment exceeds remaining balance.'));
@@ -55,27 +62,35 @@ class AdminPaymentController extends AbstractController
                     ->setPaymentDate($data['payment_date'])
                     ->setAmountPaid(number_format($amount, 2, '.', ''))
                     ->setPaymentMethod($data['payment_method'])
-                    ->setReferenceNumber(trim($data['reference_number'] ?? '') ?: null)
+                    ->setReferenceNumber($referenceNumber !== '' ? $referenceNumber : null)
                     ->setStatus($data['status']);
                 $entityManager->persist($payment);
                 if ($payment->getStatus() === 'confirmed') {
                     $finance->advanceDueDate($loan);
-                } else {
+                } elseif ($payment->getStatus() === 'pending') {
                     $notification = new Notification();
                     $notification->setUser($loan->getUser())->setType('payment_pending')->setMessage('A payment has been recorded and is awaiting confirmation.');
+                    $entityManager->persist($notification);
+                } else {
+                    $notification = new Notification();
+                    $notification->setUser($loan->getUser())->setType('payment_rejected')->setMessage('A payment has been recorded as failed.');
                     $entityManager->persist($notification);
                 }
                 $entityManager->flush();
                 $this->addFlash('success', 'Payment recorded.');
 
-                return $this->redirectToRoute('admin_payments');
+                return $this->redirectToRoute('admin_payments', $preselectedLoanId ? ['loan_id' => $preselectedLoanId] : []);
             }
         }
 
         return $this->render('admin/payments/index.html.twig', [
             'form' => $form,
-            'payments' => $payments->findForAdmin(),
+            'payments' => $payments->findForAdmin(
+                is_string($request->query->get('status')) ? $request->query->get('status') : null,
+                $preselectedLoanId,
+            ),
             'filter' => $request->query->get('status'),
+            'loanId' => $preselectedLoanId,
         ]);
     }
 

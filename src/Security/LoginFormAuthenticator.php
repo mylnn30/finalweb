@@ -69,7 +69,13 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
             $this->entityManager->flush();
         }
 
-        return new RedirectResponse($this->urlGenerator->generate($user instanceof User && $user->isAdmin() ? 'admin_dashboard' : 'app_dashboard'));
+        $route = match (true) {
+            $user instanceof User && $user->isAdmin() => 'admin_dashboard',
+            $user instanceof User && $user->isStaff() => 'staff_dashboard',
+            default => 'app_dashboard',
+        };
+
+        return new RedirectResponse($this->urlGenerator->generate($route));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response

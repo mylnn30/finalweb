@@ -3,25 +3,33 @@
 namespace App\Controller;
 
 use App\Entity\Notification;
+use App\Form\LoanApplicationType;
+use App\Service\DocumentStorageService;
 use App\Repository\LoanApplicationRepository;
 use App\Repository\SystemSettingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/applications')]
+#[IsGranted('ROLE_ADMIN')]
 class AdminApplicationController extends AbstractController
 {
     #[Route('', name: 'admin_applications', methods: ['GET'])]
     public function index(Request $request, LoanApplicationRepository $applications): Response
     {
         $status = $request->query->get('status');
+        $search = (string) $request->query->get('q', '');
 
         return $this->render('admin/applications/index.html.twig', [
-            'applications' => $applications->findForAdmin(is_string($status) ? $status : null),
+            'applications' => $applications->findForAdmin(is_string($status) ? $status : null, $search),
             'status' => $status,
+            'query' => $search,
         ]);
     }
 
@@ -34,6 +42,65 @@ class AdminApplicationController extends AbstractController
         }
 
         return $this->render('admin/applications/show.html.twig', ['application' => $application]);
+    }
+
+    #[Route('/{id}/edit', name: 'admin_application_edit', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
+    public function edit(int $id, Request $request, LoanApplicationRepository $applications, EntityManagerInterface $entityManager, DocumentStorageService $storage): Response
+    {
+        $application = $applications->find($id);
+        if (!$application) {
+            throw $this->createNotFoundException();
+        }
+
+        $form = $this->createForm(LoanApplicationType::class, $application, [
+            'include_borrower' => true,
+            'include_staff' => true,
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $terms = [
+                'home' => [60, 120, 180, 240, 300, 360],
+                'business' => [12, 24, 36, 48, 60, 72, 84],
+                'personal' => [12, 18, 24, 36, 48, 60],
+                'asset_backed' => [24, 36, 48, 60, 72, 84, 96, 108, 120],
+            ];
+            if (!isset($terms[$application->getLoanType()]) || !in_array($application->getTermMonths(), $terms[$application->getLoanType()], true)) {
+                $form->get('termMonths')->addError(new FormError('Select a valid term for this loan type.'));
+            } elseif ($application->getEmploymentStatus() === 'employed'
+                && (!$application->getEmployerName() || !$application->getLengthOfEmployment() || !$application->getEmployerContactNumber()
+                    || (!$application->getEmploymentCertificatePath() && !($form->get('employmentCertificatePath')->getData() instanceof UploadedFile)))
+            ) {
+                $form->addError(new FormError('Employed applicants must provide employer details and an employment certificate.'));
+            } elseif ($application->getEmploymentStatus() === 'self_employed' && (!$application->getBusinessName() || !$application->getBusinessType())) {
+                $form->addError(new FormError('Self-employed applicants must provide a business name and type.'));
+            } else {
+                try {
+                    foreach ([
+                        'validIdPath' => 'setValidIdPath',
+                        'proofOfIncomePath' => 'setProofOfIncomePath',
+                        'proofOfAddressPath' => 'setProofOfAddressPath',
+                        'employmentCertificatePath' => 'setEmploymentCertificatePath',
+                    ] as $field => $setter) {
+                        $file = $form->get($field)->getData();
+                        if ($file instanceof UploadedFile) {
+                            $application->{$setter}($storage->store($file));
+                        }
+                    }
+                    $borrower = $form->get('user')->getData();
+                    if ($borrower instanceof \App\Entity\User) {
+                        $application->setUser($borrower);
+                    }
+                    $entityManager->flush();
+                    $this->addFlash('success', 'Application updated.');
+
+                    return $this->redirectToRoute('admin_application_show', ['id' => $id]);
+                } catch (\RuntimeException $exception) {
+                    $form->addError(new FormError('The documents could not be saved. Please try again.'));
+                }
+            }
+        }
+
+        return $this->render('admin/applications/edit.html.twig', ['form' => $form, 'application' => $application]);
     }
 
     #[Route('/{id}/status', name: 'admin_application_status', requirements: ['id' => '\\d+'], methods: ['POST'])]

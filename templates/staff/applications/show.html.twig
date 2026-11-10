@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+{% block title %}Application #{{ application.id }} | Staff{% endblock %}
+{% block stylesheets %}<link rel="stylesheet" href="{{ asset('css/admin.css') }}">{% endblock %}
+{% block body %}
+{% include 'partials/staff_nav.html.twig' with {active: 'applications'} %}
+<main class="admin-page">
+    <a class="back-link" href="{{ path('staff_applications') }}">← Back to assigned applications</a>
+    <header class="admin-header"><div><h1>{{ application.loanType|replace({'_':' '})|title }}</h1><p>Borrower: {{ application.user.firstName }} {{ application.user.lastName }} (@{{ application.user.username }})</p></div><span class="status-badge status-{{ application.status }}">{{ application.status|title }}</span></header>
+    {% for message in app.flashes('success') %}<p role="status">{{ message }}</p>{% endfor %}
+    {% for message in app.flashes('error') %}<p role="alert">{{ message }}</p>{% endfor %}
+    <div class="detail-grid">
+        <div class="detail-field"><span class="field-label">Amount</span><span class="field-value">₱{{ application.amount|number_format(2) }}</span></div>
+        <div class="detail-field"><span class="field-label">Term</span><span class="field-value">{{ application.termMonths }} months</span></div>
+        <div class="detail-field"><span class="field-label">Employment</span><span class="field-value">{{ application.employmentStatus|replace({'_':' '})|title }}</span></div>
+        <div class="detail-field"><span class="field-label">Occupation</span><span class="field-value">{{ application.occupation }}</span></div>
+        <div class="detail-field detail-field-full"><span class="field-label">Purpose</span><span class="field-value">{{ application.purpose }}</span></div>
+        {% for label, filename in {'Valid ID': application.validIdPath, 'Proof of income': application.proofOfIncomePath, 'Proof of address': application.proofOfAddressPath} %}
+            <div class="detail-field"><span class="field-label">{{ label }}</span><a href="{{ path('staff_document', {filename: filename}) }}" target="_blank" rel="noopener">View document</a></div>
+        {% endfor %}
+        {% if application.employmentCertificatePath %}<div class="detail-field"><span class="field-label">Employment certificate</span><a href="{{ path('staff_document', {filename: application.employmentCertificatePath}) }}" target="_blank" rel="noopener">View document</a></div>{% endif %}
+    </div>
+    <p><a class="admin-btn admin-btn-approve" href="{{ path('staff_application_edit', {id: application.id}) }}">Edit Application</a></p>
+    {% if application.payments is empty %}
+        <form method="post" action="{{ path('staff_application_delete', {id: application.id}) }}" onsubmit="return confirm('Delete this assigned application?')">
+            <input type="hidden" name="_token" value="{{ csrf_token('staff_application_delete_' ~ application.id) }}">
+            <button type="submit" class="admin-btn admin-btn-reject">Delete Application</button>
+        </form>
+    {% else %}<p class="cell-muted">Applications with payment history cannot be deleted.</p>{% endif %}
+</main>
+{% endblock %}

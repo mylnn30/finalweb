@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ isNew ? 'Create Application' : 'Edit Application' }} | Staff{% endblock %}
+{% block stylesheets %}<link rel="stylesheet" href="{{ asset('css/admin.css') }}"><link rel="stylesheet" href="{{ asset('css/loan-application.css') }}">{% endblock %}
+{% block body %}
+{% include 'partials/staff_nav.html.twig' with {active: 'applications'} %}
+<main class="admin-page">
+    <a class="back-link" href="{{ path('staff_applications') }}">← Back to assigned applications</a>
+    <header class="admin-header"><div><h1>{{ isNew ? 'Create Application' : 'Edit Assigned Application' }}</h1><p>Applications you create are assigned to you. You cannot edit another staff member's records.</p></div></header>
+    {{ form_start(form, {attr: {class: 'admin-form', enctype: 'multipart/form-data'}}) }}
+        {{ form_errors(form) }}
+        <div class="form-row">{% if isNew %}{{ form_row(form.user) }}{% endif %}{{ form_row(form.loanType) }}</div>
+        <div class="form-row">{{ form_row(form.idType) }}{{ form_row(form.employmentStatus) }}</div>
+        <div class="form-row">{{ form_row(form.occupation) }}{{ form_row(form.monthlyIncome) }}</div>
+        <div class="form-row">{{ form_row(form.employerName) }}{{ form_row(form.lengthOfEmployment) }}</div>
+        <div class="form-row">{{ form_row(form.employerContactNumber) }}{{ form_row(form.businessName) }}</div>
+        <div class="form-row">{{ form_row(form.businessType) }}{{ form_row(form.paymentFrequency) }}</div>
+        <div class="form-row">{{ form_row(form.amount) }}{{ form_row(form.termMonths) }}</div>
+        {{ form_row(form.purpose) }}
+        <div class="form-row">{{ form_row(form.validIdPath) }}{{ form_row(form.proofOfIncomePath) }}</div>
+        <div class="form-row">{{ form_row(form.proofOfAddressPath) }}{{ form_row(form.employmentCertificatePath) }}</div>
+        <button type="submit" class="admin-btn admin-btn-approve">{{ isNew ? 'Create Application' : 'Save Changes' }}</button>
+    {{ form_end(form) }}
+</main>
+{% endblock %}

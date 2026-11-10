@@ -12,8 +12,10 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[IsGranted('ROLE_ADMIN')]
 class AdminSettingsController extends AbstractController
 {
     #[Route('/admin/settings', name: 'admin_settings', methods: ['GET', 'POST'])]

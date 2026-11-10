@@ -6,7 +6,7 @@ use App\Repository\PaymentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PaymentRepository::class)]
-#[ORM\Table(name: 'payments')]
+#[ORM\Table(name: 'payments', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_general_ci', 'engine' => 'InnoDB'])]
 #[ORM\Index(name: 'idx_payments_date', columns: ['payment_date'])]
 #[ORM\Index(name: 'idx_payments_loan_status', columns: ['loan_id', 'status'])]
 #[ORM\UniqueConstraint(name: 'uq_payments_reference', columns: ['reference_number'])]
@@ -18,7 +18,7 @@ class Payment
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: LoanApplication::class, inversedBy: 'payments')]
-    #[ORM\JoinColumn(name: 'loan_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\JoinColumn(name: 'loan_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT', foreignKeyName: 'payments_ibfk_1')]
     private LoanApplication $loanApplication;
 
     #[ORM\Column(name: 'payment_date', type: 'date_immutable')]
@@ -39,7 +39,7 @@ class Payment
     #[ORM\Column(name: 'status', type: 'string', length: 20, options: ['default' => 'confirmed'])]
     private string $status = 'confirmed';
 
-    #[ORM\Column(name: 'recorded_at', type: 'datetime_immutable', columnDefinition: 'timestamp NOT NULL DEFAULT current_timestamp()')]
+    #[ORM\Column(name: 'recorded_at', type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'], columnDefinition: 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP')]
     private \DateTimeImmutable $recordedAt;
 
     public function __construct()

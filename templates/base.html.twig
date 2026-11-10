@@ -7,12 +7,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/flash-messages.css') }}">
     {% block stylesheets %}{% endblock %}
     {% block javascripts %}{% endblock %}
 </head>
 <body>
-    {% for message in app.flashes('success') %}<div class="symfony-flash symfony-flash-success" role="status">{{ message }}</div>{% endfor %}
-    {% for message in app.flashes('error') %}<div class="symfony-flash symfony-flash-error" role="alert">{{ message }}</div>{% endfor %}
+    <div class="flash-stack" aria-live="polite" aria-atomic="true">
+        {% for message in app.flashes('success') %}
+            <div class="symfony-flash symfony-flash-success" role="status">
+                <span>{{ message }}</span>
+                <button class="symfony-flash-close" type="button" aria-label="Dismiss notification">&times;</button>
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="symfony-flash symfony-flash-error" role="alert">
+                <span>{{ message }}</span>
+                <button class="symfony-flash-close" type="button" aria-label="Dismiss notification">&times;</button>
+            </div>
+        {% endfor %}
+    </div>
+    <script>
+        document.querySelectorAll('.symfony-flash-close').forEach((button) => {
+            button.addEventListener('click', () => button.closest('.symfony-flash').remove());
+        });
+    </script>
     {% block body %}{% endblock %}
 </body>
 </html>

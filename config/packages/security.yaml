@@ -28,11 +28,16 @@ security:
             logout:
                 path: app_logout
                 target: app_home
+                enable_csrf: true
 
     # Note: Only the *first* matching rule is applied
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/(dashboard|applications|profile|payments|notifications|documents), roles: ROLE_USER }
+        - { path: ^/staff, roles: ROLE_STAFF }
+        - { path: ^/documents, roles: ROLE_USER }
+        - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/(dashboard|applications|payments|notifications), roles: ROLE_BORROWER }
+        - { path: ^/account, roles: ROLE_USER }
 
 when@test:
     security:

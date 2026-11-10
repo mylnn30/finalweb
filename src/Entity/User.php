@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: 'user')]
+#[ORM\Table(name: 'user', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_general_ci', 'engine' => 'InnoDB'])]
 #[ORM\UniqueConstraint(name: 'username', columns: ['username'])]
 #[ORM\UniqueConstraint(name: 'email', columns: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -44,10 +44,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'is_admin', type: 'boolean', options: ['default' => 0])]
     private bool $isAdmin = false;
 
+    #[ORM\Column(name: 'is_staff', type: 'boolean', options: ['default' => 0])]
+    private bool $isStaff = false;
+
     #[ORM\Column(name: 'is_active', type: 'boolean', options: ['default' => 1])]
     private bool $isActive = true;
 
-    #[ORM\Column(name: 'created_at', type: 'datetime_immutable', columnDefinition: 'timestamp NOT NULL DEFAULT current_timestamp()')]
+    #[ORM\Column(name: 'created_at', type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'], columnDefinition: 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP')]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(name: 'phone_number', type: 'string', length: 20)]
@@ -61,11 +64,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'user')]
     private Collection $notifications;
 
+    /** @var Collection<int, LoanApplication> */
+    #[ORM\OneToMany(targetEntity: LoanApplication::class, mappedBy: 'assignedStaff')]
+    private Collection $assignedApplications;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->loanApplications = new ArrayCollection();
         $this->notifications = new ArrayCollection();
+        $this->assignedApplications = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -93,7 +101,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /** @return list<string> */
     public function getRoles(): array
     {
-        return $this->isAdmin ? ['ROLE_USER', 'ROLE_ADMIN'] : ['ROLE_USER'];
+        if ($this->isAdmin) {
+            return ['ROLE_USER', 'ROLE_ADMIN'];
+        }
+
+        return $this->isStaff ? ['ROLE_USER', 'ROLE_STAFF'] : ['ROLE_USER', 'ROLE_BORROWER'];
     }
 
     public function isAdmin(): bool
@@ -104,6 +116,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsAdmin(bool $isAdmin): self
     {
         $this->isAdmin = $isAdmin;
+        if ($isAdmin) {
+            $this->isStaff = false;
+        }
+
+        return $this;
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->isStaff;
+    }
+
+    public function setIsStaff(bool $isStaff): self
+    {
+        $this->isStaff = $isStaff;
+        if ($isStaff) {
+            $this->isAdmin = false;
+        }
+
+        return $this;
+    }
+
+    public function setRole(string $role): self
+    {
+        $this->isAdmin = $role === 'admin';
+        $this->isStaff = $role === 'staff';
 
         return $this;
     }
@@ -262,6 +300,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeNotification(Notification $notification): self
     {
         $this->notifications->removeElement($notification);
+
+        return $this;
+    }
+
+    /** @return Collection<int, LoanApplication> */
+    public function getAssignedApplications(): Collection
+    {
+        return $this->assignedApplications;
+    }
+
+    public function addAssignedApplication(LoanApplication $application): self
+    {
+        if (!$this->assignedApplications->contains($application)) {
+            $this->assignedApplications->add($application);
+        }
+
+        return $this;
+    }
+
+    public function removeAssignedApplication(LoanApplication $application): self
+    {
+        $this->assignedApplications->removeElement($application);
 
         return $this;
     }

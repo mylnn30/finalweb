@@ -10,7 +10,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
-      - "3307:3306"
+      - "127.0.0.1:3307:3306"
     volumes:
       - finalweb_db_data:/var/lib/mysql
     networks:
@@ -23,7 +23,7 @@ services:
     environment:
       PMA_HOST: finalweb_mysql
     ports:
-      - "8081:80"
+      - "127.0.0.1:8081:80"
     networks:
       - finalweb_network
 
@@ -32,12 +32,14 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: finalweb_php
+    environment:
+      DATABASE_URL: "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@finalweb_mysql:3306/${MYSQL_DATABASE}?serverVersion=26.7.0&charset=utf8mb4"
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
       - .:/var/www/html
     ports:
-      - "8001:8000"
+      - "127.0.0.1:8001:8000"
     command: php -S 0.0.0.0:8000 -t public public/router.php
     depends_on:
       - finalweb_mysql

@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+{% block title %}Staff Dashboard | Mletchido Financial Group{% endblock %}
+{% block stylesheets %}<link rel="stylesheet" href="{{ asset('css/admin.css') }}">{% endblock %}
+{% block body %}
+{% include 'partials/staff_nav.html.twig' with {active: 'overview'} %}
+<main class="admin-page">
+    <header class="admin-header"><div><h1>Staff Dashboard</h1><p>Manage loan applications assigned to your account.</p></div></header>
+    <section class="stat-row">
+        <div class="stat-tile"><span class="stat-value">{{ applications|length }}</span><span class="stat-label">Assigned Applications</span></div>
+        <div class="stat-tile"><span class="stat-value">{{ pending }}</span><span class="stat-label">Pending Applications</span></div>
+    </section>
+    <p><a class="admin-btn admin-btn-approve" href="{{ path('staff_application_new') }}">Create application for a borrower</a></p>
+</main>
+{% endblock %}

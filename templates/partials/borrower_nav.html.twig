@@ -6,6 +6,8 @@
         <a href="{{ path('app_payments') }}" class="{{ active == 'payments' ? 'is-active' : '' }}">Payments</a>
         <a href="{{ path('app_notifications') }}" class="{{ active == 'notifications' ? 'is-active' : '' }}">Notifications{% if unreadCount|default(0) > 0 %} ({{ unreadCount }}){% endif %}</a>
         <a href="{{ path('app_profile') }}" class="{{ active == 'profile' ? 'is-active' : '' }}">Profile</a>
-        <a href="{{ path('app_logout') }}">Sign Out</a>
+        <a href="{{ path('app_account') }}">My Account</a>
+        <a href="{{ path('app_account_password') }}">Change Password</a>
+        <form action="{{ path('app_logout') }}" method="post" class="logout-form"><input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}"><button type="submit" class="logout-button">Sign Out</button></form>
     </nav>
 </header>

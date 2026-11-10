@@ -6,7 +6,7 @@ use App\Repository\RememberTokenRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RememberTokenRepository::class)]
-#[ORM\Table(name: 'remember_tokens')]
+#[ORM\Table(name: 'remember_tokens', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_general_ci', 'engine' => 'InnoDB'])]
 #[ORM\Index(name: 'user_id', columns: ['user_id'])]
 #[ORM\Index(name: 'expires_at', columns: ['expires_at'])]
 #[ORM\UniqueConstraint(name: 'token_hash', columns: ['token_hash'])]

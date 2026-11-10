@@ -27,7 +27,7 @@ class LoanApplicationRepository extends ServiceEntityRepository
     }
 
     /** @return list<LoanApplication> */
-    public function findForAdmin(?string $status = null): array
+    public function findForAdmin(?string $status = null, string $search = ''): array
     {
         $queryBuilder = $this->createQueryBuilder('application')
             ->join('application.user', 'user')
@@ -36,6 +36,45 @@ class LoanApplicationRepository extends ServiceEntityRepository
 
         if ($status !== null && in_array($status, ['pending', 'approved', 'rejected'], true)) {
             $queryBuilder->andWhere('application.status = :status')->setParameter('status', $status);
+        }
+
+        if (trim($search) !== '') {
+            $queryBuilder
+                ->andWhere($queryBuilder->expr()->orX(
+                    'user.username LIKE :search',
+                    'user.firstName LIKE :search',
+                    'user.lastName LIKE :search',
+                    'user.email LIKE :search',
+                ))
+                ->setParameter('search', '%' . trim($search) . '%');
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    /** @return list<LoanApplication> */
+    public function findForAssignedStaff(User $staff, ?string $status = null, string $search = ''): array
+    {
+        $queryBuilder = $this->createQueryBuilder('application')
+            ->join('application.user', 'borrower')
+            ->addSelect('borrower')
+            ->andWhere('application.assignedStaff = :staff')
+            ->setParameter('staff', $staff)
+            ->orderBy('application.submittedAt', 'DESC');
+
+        if ($status !== null && in_array($status, ['pending', 'approved', 'rejected'], true)) {
+            $queryBuilder->andWhere('application.status = :status')->setParameter('status', $status);
+        }
+
+        if (trim($search) !== '') {
+            $queryBuilder
+                ->andWhere($queryBuilder->expr()->orX(
+                    'borrower.username LIKE :search',
+                    'borrower.firstName LIKE :search',
+                    'borrower.lastName LIKE :search',
+                    'borrower.email LIKE :search',
+                ))
+                ->setParameter('search', '%' . trim($search) . '%');
         }
 
         return $queryBuilder->getQuery()->getResult();
